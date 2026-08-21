@@ -77,6 +77,25 @@ safest zone comes first and a tie goes to the zone that saves more.
 An empty list is a real answer: the session is one connected piece of work with no step, so
 no stop is safe. `report.py` then prints the trade instead.
 
+## Which part of the past is still needed
+
+`self_containment` says how much the kept messages still need the past. It
+never says which part supplies it. `supplying_blocks(per_msg, first_seen,
+stop, blocks=6)` answers that: it cuts the dropped part into six equal blocks
+and attributes every borrowed word use to the block that introduced the term.
+Shares add up to 1.
+
+Measured on one session, stopping at row 50: the first eight messages supply
+**65%** of everything the kept part still needs, while rows 17 to 24 supply
+**2.3%**. The first block almost always leads, because the opening introduces
+the vocabulary. The useful signal is the small shares.
+
+A block under `ISLAND_SHARE` (0.05) is a side trip. The work after the stop
+never refers back to it, so the summary can drop it whole. `report.py` names
+those blocks in the note the user pastes into the picker's context box. The
+stop stays a prefix, because that is all "Summarize up to here" accepts, but
+the summary itself gets tighter.
+
 ## RCA — the cliff that was not real
 
 The first version keyed on **falls** in the curve, not rises, and the largest fall in the

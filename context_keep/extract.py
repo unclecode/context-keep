@@ -22,6 +22,7 @@ SKIP_PREFIXES = (
     "Caveat:",
     "(Re-invocation of",          # a skill reloading itself
     "Base directory for this skill",
+    "[Image: source:",            # an attachment line, only a file path
 )
 
 COMPACT_PREFIX = "This session is being continued from a previous conversation"

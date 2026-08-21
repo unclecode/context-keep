@@ -10,13 +10,18 @@ import sys
 
 from .extract import load_timeline
 from .rules import score_timeline
-from .zones import build, self_containment, usable_stops, safe_zones
+from .zones import (build, self_containment, usable_stops, safe_zones,
+                    supplying_blocks)
 from .render import Palette, curve_chart
 
 # The Rewind picker prints "N more below" for the entry under the cursor, with
 # two entries visible beneath it. So the number to scroll to is the position
 # from the newest entry, minus 2. Measured against two real pickers.
 PICKER_OFFSET = 2
+
+# A block of dropped messages that supplies less than this share of what the
+# kept messages still need is a side trip. The summary can drop it whole.
+ISLAND_SHARE = 0.05
 
 FOCUS_TEXT = ("Keep exact: file names, line numbers, flag and field names, "
               "and the decision behind each one. Keep the wording of any plan "
@@ -103,6 +108,19 @@ def report(path, top=3, palette=None, out=sys.stdout, html=False, branch=None):
     w(f"  {palette.dim}      older → newer{palette.off}")
     w()
 
+    def block_anchor(lo, hi):
+        """Name a block by its first message that reads like a sentence.
+
+        The first row can be a one-word reply, which tells the summariser
+        nothing about which part to drop.
+        """
+        rows = range(lo, min(hi + 1, len(window)))
+        texts = [tl.messages[window[r].index - 1].text for r in rows]
+        for t in texts:
+            if len(t) >= 40:
+                return t
+        return texts[0] if texts else ""
+
     if not zones:
         return _no_break(stops, values, palette, w)
 
@@ -132,13 +150,24 @@ def report(path, top=3, palette=None, out=sys.stdout, html=False, branch=None):
         w()
 
     best = zones[0]["safest"]
+    islands = [(lo, hi, share) for lo, hi, share
+               in supplying_blocks(per_msg, first_seen, best[0])
+               if share < ISLAND_SHARE]
+
     w(f"  {palette.head}How to use it{palette.off}")
     w(f"    1. Press Esc twice.")
     w(f"    2. Go up until the list shows “↓ {best[1] - PICKER_OFFSET} more below”.")
     w(f"       Check the message reads: \"{quote(best[2].text, 44)}\"")
     w(f"    3. Choose “Summarize up to here”.")
     w(f"    4. Paste this into the context box:")
-    for chunk in _wrap(FOCUS_TEXT, 66):
+    note = FOCUS_TEXT
+    if islands:
+        parts = []
+        for lo, hi, share in islands:
+            parts.append(f'the part starting "{quote(block_anchor(lo, hi), 44)}"')
+        note += (" Drop these side trips whole, the later work never uses them: "
+                 + "; ".join(parts) + ".")
+    for chunk in _wrap(note, 66):
         w(f"       {palette.quote}{chunk}{palette.off}")
     w()
     return 0

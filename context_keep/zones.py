@@ -123,6 +123,45 @@ def find_zones(values, top_k=3):
     return out
 
 
+def supplying_blocks(per_msg, first_seen, stop, blocks=6):
+    """Split the dropped part into blocks and say how much each one still feeds
+    the kept part.
+
+    self_containment says HOW MUCH the kept messages still need the past. It
+    never says WHICH part of the past supplies it. Splitting the dropped part
+    into equal blocks and attributing each borrowed word use to the block that
+    introduced it answers that.
+
+    A block with a share near zero is a side trip: the work after the stop
+    never refers to it, so a summary can drop it whole. A block with a large
+    share is the thread the work still runs on, and the summary must carry it.
+
+    Returns [(first message, last message, share of the borrowed uses)],
+    oldest block first. Shares add up to 1.
+    """
+    if stop < blocks:
+        return []
+    tail = Counter()
+    for terms_here in per_msg[stop:]:
+        tail.update(terms_here)
+
+    edges = [round(i * stop / blocks) for i in range(blocks + 1)]
+    borrowed = [0] * blocks
+    total = 0
+    for term, count in tail.items():
+        origin = first_seen[term]
+        if origin >= stop:
+            continue
+        total += count
+        for b in range(blocks):
+            if edges[b] <= origin < edges[b + 1]:
+                borrowed[b] += count
+                break
+    if not total:
+        return []
+    return [(edges[b], edges[b + 1] - 1, borrowed[b] / total) for b in range(blocks)]
+
+
 def usable_stops(timeline, window):
     """Cut rows the picker can select, that leave real work on both sides.
 
