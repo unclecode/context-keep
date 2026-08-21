@@ -45,6 +45,9 @@ def curve_chart(values, marks=(), rows=7, width=None, palette=None):
     width = width or max(24, min(64, (shutil.get_terminal_size((90, 24)).columns) - 20))
     if len(values) < 2:
         return []
+    # Never ask for more columns than there are points. With more columns than
+    # points some columns get an empty slice, and averaging one divides by zero.
+    width = min(width, len(values))
 
     # One column per screen position: average the points that fall in it.
     cols, marked = [], set()

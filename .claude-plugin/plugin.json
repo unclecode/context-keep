@@ -1,6 +1,6 @@
 {
   "name": "context-keep",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Finds where a long Claude Code chat can be summarized, and what must stay word for word. Adds /keep.",
   "author": {
     "name": "unclecode",

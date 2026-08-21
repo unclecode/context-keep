@@ -71,7 +71,10 @@ filled area. Filling under the curve turned the middle rows into one solid block
 showed nothing.
 
 - Screen columns are averaged from the values, so the chart fits any width. Default width
-  is the terminal width minus 20, clamped to 24 to 64.
+  is the terminal width minus 20, clamped to 24 to 64, and then capped at the number of
+  points. Without that cap a session with fewer messages than columns gives some column an
+  empty slice, and averaging it divides by zero. That crash shipped once; `run_all.py`
+  exists so it cannot ship again.
 - A cell holds a block from `BLOCKS` when the curve passes through it. `joins` records the
   range each column spans, and a column that jumps more than one row is filled with `│`, so
   the line stays connected.
@@ -85,6 +88,13 @@ showed nothing.
 SVG polyline with a soft fill, the zone bands, an invisible hover circle per point carrying
 the message text in a `<title>`, and a table of zones. It defines its palette in `:root`
 and overrides it under `prefers-color-scheme: dark`.
+
+## Before a release
+
+`python3 run_all.py` runs the report over every transcript on the machine, in
+all three branch modes, plus ten chart sizes from 0 to 200 points. It checks
+that the command runs, not that the answer is good. The benchmark judges the
+answer.
 
 ## Key files
 
