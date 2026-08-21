@@ -4,6 +4,7 @@
     "name": "unclecode",
     "url": "https://github.com/unclecode"
   },
+  "description": "Tools that keep an AI coding session short and still complete.",
   "plugins": [
     {
       "name": "context-keep",
