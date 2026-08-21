@@ -4,7 +4,7 @@
 # Context Keep
 
 Your Claude Code chat is long. You want to shorten it without losing what you
-are working on. **Which message do you stop at?**
+are working on. Claude code and other coding agents provides two forms of summarization. You can go back to history, rewind to a message, and then either summarize from that point forward or summarize from the beginning to that point, which is my favorite approach since what I work on at moment "t" most of the time has less need for older messages. However, every time I have to peek manually to find the best point, the point where messages after that have the least dependency on messages before that. I formulated this mathematically to find **the optimum point** and build this tool. 
 
 `/keep` answers that.
 
