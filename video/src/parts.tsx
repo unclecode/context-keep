@@ -29,12 +29,14 @@ export const Line: React.FC<{ text: string; color?: string; dim?: boolean }> =
  */
 export const Foot: React.FC<{
   pct: number; typed: string; caret: boolean; hint?: string; chip: string;
-}> = ({ pct, typed, caret, hint, chip }) => {
+  focus?: boolean; anchorTop?: number;
+}> = ({ pct, typed, caret, hint, chip, focus, anchorTop }) => {
   const used = Math.round(pct * 10);          // 81% -> 810k of 1000k
   const barW = 150;
   return (
     <div style={{
-      position: "absolute", left: T.padX, right: T.padX, bottom: 26,
+      position: "absolute", left: T.padX, right: T.padX,
+      ...(anchorTop === undefined ? { bottom: 26 } : { top: anchorTop }),
       fontFamily: T.mono,
     }}>
       {hint && (
@@ -48,7 +50,7 @@ export const Foot: React.FC<{
           padding: "3px 12px", letterSpacing: 0.4,
         }}>{chip}</span>
       </div>
-      <div style={{ height: 1, background: T.rule, marginBottom: 14 }} />
+      <div style={{ height: 1, background: focus ? T.focus : T.rule, marginBottom: 14 }} />
       <div style={{
         display: "flex", alignItems: "center", gap: 14,
         fontSize: T.fs, color: T.ink, marginBottom: 18,
@@ -60,7 +62,7 @@ export const Foot: React.FC<{
           background: caret ? T.ink : "transparent",
         }} />
       </div>
-      <div style={{
+      {anchorTop === undefined && <div style={{
         display: "flex", alignItems: "center", gap: 16,
         fontSize: T.fs - 5, color: T.dim,
       }}>
@@ -71,10 +73,49 @@ export const Foot: React.FC<{
           }} />
         </div>
         <span>{Math.round(pct)}% ({used}k/1000k) · think:on</span>
-      </div>
+      </div>}
     </div>
   );
 };
+
+/**
+ * The Rewind picker, exactly as Claude Code draws it: a bordered box that
+ * opens BELOW the input box, with one row per message and its code-change
+ * note underneath, a counter at each end, and a key hint at the foot.
+ */
+export const Rewind: React.FC<{
+  rows: Array<{ text: string; changes: string }>;
+  selected: number; above: number; below: number; belowHot: boolean;
+  top: number; menu?: React.ReactNode;
+}> = ({ rows, selected, above, below, belowHot, top, menu }) => (
+  <div style={{
+    position: "absolute", left: 0, right: 0, bottom: 0, top,
+    background: T.bg, borderTop: `1px solid ${T.focus}`,
+    padding: `18px ${T.padX}px 20px`,
+    display: "flex", flexDirection: "column",
+  }}>
+    <Line text="Rewind" color={T.focus} />
+    <div style={{ height: T.lh * 0.4 }} />
+    <Line text="Restore the code and/or conversation to the point before…" />
+    <div style={{ height: T.lh * 0.4 }} />
+    <Line text={` ↑ ${above} more above`} dim />
+    <div style={{ height: T.lh * 0.3 }} />
+    {rows.map((r, i) => (
+      <div key={i} style={{ marginBottom: T.lh * 0.3 }}>
+        <Line text={(i === selected ? "❯ " : "  ") + r.text}
+              color={i === selected ? T.focus : T.ink} />
+        <Line text={"  " + r.changes} color={T.faint} />
+      </div>
+    ))}
+    <Line text={` ↓ ${below} more below`}
+          color={belowHot ? T.accent : T.dim} />
+    {menu}
+    <div style={{ flex: 1 }} />
+    <div style={{
+      fontFamily: T.mono, fontSize: T.fs - 4, color: T.faint, fontStyle: "italic",
+    }}>Enter to continue · Esc to cancel</div>
+  </div>
+);
 
 /** The window frame everything sits inside. */
 export const Shell: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -92,10 +133,11 @@ export const Shell: React.FC<{ children: React.ReactNode }> = ({ children }) => 
  * Claude Code does it: new output appears above the input line and pushes the
  * older lines off the top.
  */
-export const Scroll: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+export const Scroll: React.FC<{ children: React.ReactNode; bottom?: number }> =
+  ({ children, bottom }) => (
   <div style={{
     position: "absolute", top: 40, left: T.padX, right: T.padX,
-    bottom: T.inputH, overflow: "hidden",
+    bottom: bottom ?? T.inputH, overflow: "hidden",
     display: "flex", flexDirection: "column", justifyContent: "flex-end",
   }}>
     {children}

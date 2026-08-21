@@ -6,6 +6,7 @@ export const T = {
   dim: "#8A8894",
   faint: "#55535E",
   rule: "#26262E",
+  focus: "#7C8CF8",   // the blue Claude Code puts on the focused box
   accent: "#B69BE0",     // the icon accent
   zone: "#DCA84A",
   good: "#6FBF95",
@@ -41,15 +42,13 @@ export const ZOOMS: Array<{
   a: number; b: number; c: number; d: number;
   scale: number; ox: number; oy: number;
 }> = [
-  // 1. the token line, so 81% is unmissable. Its text spans x 3%..31%, and it
-  //    sits 38px from the foot of a 1080 frame.
-  { a: 12,  b: 34,  c: 74,  d: 92,  scale: 2.0, ox: 0.17, oy: 0.965 },
-  // 2. the input line while /keep is typed, 84px from the foot
-  { a: 96,  b: 116, c: 168, d: 190, scale: 2.0, ox: 0.10, oy: 0.922 },
-  // 3. the recommended stop, twelve lines above the foot of the transcript
-  { a: 336, b: 358, c: 404, d: 424, scale: 1.9, ox: 0.22, oy: 0.417 },
-  // 4. the picker counter reaching 56
-  { a: 470, b: 492, c: 530, d: 552, scale: 1.9, ox: 0.14, oy: 0.396 },
-  // 5. the token line again, showing 29%
-  { a: 700, b: 724, c: 770, d: 790, scale: 2.0, ox: 0.17, oy: 0.965 },
+  // 1. the foot of the window: the input line and the token count together,
+  //    held while /keep is typed
+  { a: 14,  b: 44,  c: 168, d: 196, scale: 1.9, ox: 0.15, oy: 0.945 },
+  // 2. the recommended stop
+  { a: 336, b: 366, c: 404, d: 428, scale: 1.9, ox: 0.22, oy: 0.417 },
+  // 3. the picker counter reaching 56
+  { a: 468, b: 496, c: 532, d: 556, scale: 1.7, ox: 0.16, oy: 0.845 },
+  // 4. the token count again, showing 29%
+  { a: 700, b: 730, c: 768, d: 792, scale: 2.0, ox: 0.17, oy: 0.965 },
 ];
