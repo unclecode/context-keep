@@ -1,48 +1,44 @@
 import React from "react";
 import { AbsoluteFill, interpolate, useCurrentFrame, spring, useVideoConfig } from "remotion";
-import { T, S } from "./theme";
+import { T, S, ZOOMS } from "./theme";
 import { HISTORY, REPORT, PICKER, MENU, NOTE } from "./data";
-import { Mark, Line, StatusBar, Shell, Cursor } from "./parts";
+import { Mark, Line, Foot, Shell, Scroll } from "./parts";
 
 const within = (f: number, [a, b]: readonly [number, number]) => f >= a && f < b;
 const at = (f: number, [a, b]: readonly [number, number]) => (f - a) / (b - a);
 
-/** Scene 1 to 4: the session, the command, the report printing. */
-const Session: React.FC<{ f: number }> = ({ f }) => {
-  const typed = within(f, S.typing)
-    ? "/keep".slice(0, Math.floor(at(f, S.typing) * 6))
-    : f >= S.typing[1] ? "/keep" : "";
+/** How far into a zoom move we are: 0 wide, 1 close. */
+const zoomAmount = (f: number, z: typeof ZOOMS[number]) =>
+  f < z.a || f > z.d ? 0
+    : f < z.b ? interpolate(f, [z.a, z.b], [0, 1])
+    : f <= z.c ? 1
+    : interpolate(f, [z.c, z.d], [1, 0]);
 
-  // The report prints line by line, and its chart draws column by column.
+/** Everything the terminal has printed so far, oldest first. */
+const Transcript: React.FC<{ f: number }> = ({ f }) => {
   const shown = f < S.printing[0] ? 0
-    : Math.min(REPORT.length, Math.floor(at(f, S.printing) * REPORT.length * 1.25));
+    : Math.min(REPORT.length, Math.floor(at(f, S.printing) * REPORT.length * 1.3));
   const chartCols = f < S.printing[0] ? 0
-    : Math.floor(interpolate(f, [S.printing[0] + 20, S.printing[0] + 70], [0, 60],
+    : Math.floor(interpolate(f, [S.printing[0] + 22, S.printing[0] + 84], [0, 60],
         { extrapolateRight: "clamp" }));
-
   const isChart = (i: number) => i >= 3 && i <= 12;
 
   return (
-    <div style={{
-      position: "absolute", top: 66, left: T.padX, right: T.padX, bottom: 78,
-      overflow: "hidden",
-    }}>
-      <div>
+    <>
       {HISTORY.map(([who, text], i) => (
-        <div key={i} style={{ marginBottom: 4, opacity: 0.55 }}>
-          <Line text={(who === "user" ? "› " : "● ") + text}
-                color={who === "user" ? T.ink : T.dim} />
-        </div>
+        <Line key={i} text={(who === "user" ? "› " : "● ") + text}
+              color={who === "user" ? T.ink : T.dim} />
       ))}
-      <div style={{ height: 14 }} />
-      <Line text={"› " + typed + (f < S.running[0] ? "" : "")} />
       {f >= S.running[0] && (
-        <div style={{ marginTop: 10 }}>
-          <Line text={f < S.printing[0] ? "  ✻ running…" : "  Ran 1 shell command"} dim />
-        </div>
+        <>
+          <div style={{ height: T.lh / 2 }} />
+          <Line text="› /keep" />
+          <Line text={f < S.printing[0] ? "  ✳ Working…" : "  Ran 1 shell command"} dim />
+        </>
       )}
       {f >= S.printing[0] && (
-        <div style={{ marginTop: 10 }}>
+        <>
+          <div style={{ height: T.lh / 2 }} />
           {REPORT.slice(0, shown).map((l, i) => (
             <Line key={i}
                   text={isChart(i) ? l.slice(0, Math.max(0, chartCols + 7)) : l}
@@ -50,80 +46,53 @@ const Session: React.FC<{ f: number }> = ({ f }) => {
                        : l.includes("below~56") ? T.accent : undefined}
                   dim={l.trim().startsWith("keep ") || l.includes("older →")} />
           ))}
-        </div>
+        </>
       )}
-      </div>
-    </div>
+    </>
   );
 };
 
-/** Scene 5: the recommended stop grows out of the report. */
-const Zoom: React.FC<{ f: number }> = ({ f }) => {
-  const { fps } = useVideoConfig();
-  const g = spring({ frame: f - S.zoom[0], fps, config: { damping: 200 } });
-  const scale = interpolate(g, [0, 1], [0.9, 1]);
-  const fade = interpolate(g, [0, 1], [0, 1]);
-  return (
-    <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
-      <div style={{
-        transform: `scale(${scale})`, opacity: fade,
-        background: T.panel, border: `1px solid #2E2E38`, borderRadius: 4,
-        padding: "34px 46px", boxShadow: "0 30px 90px rgba(0,0,0,.55)",
-      }}>
-        <Line text="zone 1   keeps 0.50   a clear break, 191x the noise" color={T.zone} />
-        <div style={{ height: 14 }} />
-        <Line text="stop here     below~56" color={T.accent} />
-        <Line text='              "ok good we got the plan settled"' dim />
-      </div>
-    </AbsoluteFill>
-  );
-};
-
-/** Scene 6: the Rewind picker, scrolling until the counter reads 56. */
+/** The Rewind picker, drawn over the session. */
 const Picker: React.FC<{ f: number }> = ({ f }) => {
   const p = at(f, S.picker);
-  const counter = Math.round(interpolate(p, [0.05, 0.8], [4, 56], { extrapolateRight: "clamp" }));
+  const counter = Math.round(
+    interpolate(p, [0.06, 0.78], [4, 56], { extrapolateRight: "clamp" }));
   const menuOpen = f >= S.menu[0];
   const pick = menuOpen
-    ? Math.min(4, Math.floor(interpolate(at(f, S.menu), [0.05, 0.32], [0, 4],
+    ? Math.min(4, Math.floor(interpolate(at(f, S.menu), [0.04, 0.30], [0, 4],
         { extrapolateRight: "clamp" })))
     : -1;
   const noteChars = menuOpen
-    ? Math.floor(interpolate(at(f, S.menu), [0.42, 0.95], [0, NOTE.length],
+    ? Math.floor(interpolate(at(f, S.menu), [0.40, 0.94], [0, NOTE.length],
         { extrapolateRight: "clamp" }))
     : 0;
 
   return (
-    <AbsoluteFill style={{ background: "rgba(10,10,13,.72)" }}>
+    <AbsoluteFill style={{ background: "rgba(6,6,8,.80)" }}>
       <div style={{
-        position: "absolute", left: T.padX, right: T.padX, top: 120,
-        background: T.bg, border: `1px solid #2E2E38`, padding: "26px 30px",
+        position: "absolute", left: T.padX, right: T.padX, top: 70,
+        background: T.bg, border: `1px solid ${T.rule}`, padding: "24px 28px",
       }}>
         <Line text="Rewind" color={T.accent} />
-        <div style={{ height: 8 }} />
-        <Line text="Restore the code and/or conversation to the point before…" dim />
-        <div style={{ height: 16 }} />
+        <div style={{ height: 10 }} />
         <Line text={`  ↑ ${132 - counter} more above`} dim />
         <div style={{ height: 10 }} />
         {PICKER.map((t, i) => (
-          <div key={i} style={{ marginBottom: 10 }}>
-            <Line text={(i === 2 ? "› " : "  ") + t}
-                  color={i === 2 ? T.ink : T.dim} />
-            {t !== "(current)" && <Line text="   No code changes" color={T.faint} />}
-          </div>
+          <Line key={i} text={(i === 2 ? "› " : "  ") + t}
+                color={i === 2 ? T.ink : T.dim} />
         ))}
-        <div style={{ height: 6 }} />
+        <div style={{ height: 10 }} />
         <Line text={`  ↓ ${counter} more below`}
               color={counter >= 56 ? T.accent : T.dim} />
 
         {menuOpen && (
-          <div style={{ marginTop: 22, borderTop: `1px solid #2E2E38`, paddingTop: 18 }}>
+          <div style={{ marginTop: 18, borderTop: `1px solid ${T.rule}`, paddingTop: 16 }}>
             {MENU.map((m, i) => (
               <Line key={i} text={(i === pick ? "❯ " : "  ") + m}
                     color={i === pick ? T.accent : T.dim} />
             ))}
             {noteChars > 0 && (
-              <div style={{ marginTop: 14 }}>
+              <div style={{ marginTop: 12 }}>
                 <Line text={"  add context: " + NOTE.slice(0, noteChars)} color={T.ink} />
               </div>
             )}
@@ -134,75 +103,60 @@ const Picker: React.FC<{ f: number }> = ({ f }) => {
   );
 };
 
-/** Scene 8: the summary replaces the past. */
+/** The past folds away and one summary block takes its place. */
 const Summarize: React.FC<{ f: number }> = ({ f }) => {
   const p = at(f, S.summarize);
-  const collapse = interpolate(p, [0.15, 0.7], [1, 0], { extrapolateRight: "clamp" });
-  const done = p > 0.72;
+  const fold = interpolate(p, [0.12, 0.62], [1, 0], { extrapolateRight: "clamp" });
+  const done = p > 0.66;
   return (
-    <div style={{ position: "absolute", top: 70, left: T.padX, right: T.padX }}>
-      <div style={{ opacity: collapse, transform: `scaleY(${Math.max(collapse, 0.02)})`,
-                    transformOrigin: "top" }}>
+    <>
+      <div style={{
+        opacity: fold, transform: `scaleY(${Math.max(fold, 0.01)})`,
+        transformOrigin: "bottom",
+      }}>
         {HISTORY.map(([who, text], i) => (
-          <div key={i} style={{ marginBottom: 6, opacity: 0.5 }}>
-            <Line text={(who === "user" ? "› " : "● ") + text} dim />
-          </div>
+          <Line key={i} text={(who === "user" ? "› " : "● ") + text} dim />
         ))}
       </div>
-      <div style={{ marginTop: 8 }}>
-        <Line text={done ? "● Summary of the earlier work"
-                         : "  ✻ Summarizing up to that message…"}
-              color={done ? T.good : T.dim} />
-        {done && (
-          <>
-            <Line text="  The retry path and its backoff are done and reviewed." dim />
-            <Line text="  Nothing is committed. The cache layer is next." dim />
-          </>
-        )}
-      </div>
-    </div>
+      <Line text={done ? "● Summary of the earlier work"
+                       : "  ✳ Summarizing up to that message…"}
+            color={done ? T.good : T.dim} />
+      {done && (
+        <>
+          <Line text="  The retry path and its backoff are done and reviewed." dim />
+          <Line text="  Nothing is committed. The cache layer is next." dim />
+        </>
+      )}
+    </>
   );
 };
 
-/** Scene 9: back to work, with room to breathe. */
-const Back: React.FC<{ f: number }> = ({ f }) => {
-  const p = at(f, S.back);
-  const typed = "ok, now the cache layer".slice(
-    0, Math.floor(interpolate(p, [0.35, 0.9], [0, 23], { extrapolateRight: "clamp" })));
-  return (
-    <div style={{ position: "absolute", top: 70, left: T.padX, right: T.padX }}>
-      <Line text="● Summary of the earlier work" color={T.good} />
-      <Line text="  The retry path and its backoff are done and reviewed." dim />
-      <Line text="  Nothing is committed. The cache layer is next." dim />
-      <div style={{ height: 22 }} />
-      <Line text={"› " + typed} />
-    </div>
-  );
-};
-
-/** Scene 10: the end card. */
+/** The end card. */
 const Card: React.FC<{ f: number }> = ({ f }) => {
   const { fps } = useVideoConfig();
   const g = spring({ frame: f - S.card[0], fps, config: { damping: 200 } });
   return (
     <AbsoluteFill style={{
       background: T.bg, justifyContent: "center", alignItems: "center",
-      opacity: interpolate(f, [S.card[0], S.card[0] + 10], [0, 1], { extrapolateRight: "clamp" }),
+      opacity: interpolate(f, [S.card[0], S.card[0] + 12], [0, 1],
+        { extrapolateRight: "clamp" }),
     }}>
-      <div style={{ transform: `translateY(${interpolate(g, [0, 1], [16, 0])}px)`,
-                    textAlign: "center" }}>
-        <Mark size={128} />
-        <div style={{ fontFamily: T.mono, fontSize: 46, color: T.ink,
-                      marginTop: 18, letterSpacing: -1 }}>context-keep</div>
-        <div style={{ fontFamily: T.mono, fontSize: 21, color: T.dim, marginTop: 14 }}>
+      <div style={{
+        transform: `translateY(${interpolate(g, [0, 1], [22, 0])}px)`,
+        textAlign: "center",
+      }}>
+        <Mark size={150} />
+        <div style={{ fontFamily: T.mono, fontSize: 62, color: T.ink,
+                      marginTop: 20, letterSpacing: -1 }}>context-keep</div>
+        <div style={{ fontFamily: T.mono, fontSize: 28, color: T.dim, marginTop: 16 }}>
           Find where a long chat can be summarized.
         </div>
-        <div style={{ marginTop: 42, background: T.panel, border: "1px solid #2E2E38",
-                      borderRadius: 4, padding: "22px 30px", textAlign: "left" }}>
-          <div style={{ fontFamily: T.mono, fontSize: 20, color: T.accent }}>
+        <div style={{ marginTop: 46, background: T.panel, border: `1px solid ${T.rule}`,
+                      padding: "26px 36px", textAlign: "left" }}>
+          <div style={{ fontFamily: T.mono, fontSize: 26, color: T.accent }}>
             /plugin marketplace add unclecode/context-keep
           </div>
-          <div style={{ fontFamily: T.mono, fontSize: 20, color: T.accent, marginTop: 8 }}>
+          <div style={{ fontFamily: T.mono, fontSize: 26, color: T.accent, marginTop: 10 }}>
             /plugin install context-keep@context-keep
           </div>
         </div>
@@ -213,21 +167,63 @@ const Card: React.FC<{ f: number }> = ({ f }) => {
 
 export const Demo: React.FC = () => {
   const f = useCurrentFrame();
+
+  // The token count falls only while the summary is being written.
   const pct = f < S.summarize[0] ? 81
-    : f < S.back[0] ? interpolate(f, [S.summarize[0] + 30, S.back[0]], [81, 29],
+    : f < S.back[0] ? interpolate(f, [S.summarize[0] + 36, S.back[0]], [81, 29],
         { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
     : 29;
 
+  const typed = within(f, S.typing)
+    ? "/keep".slice(0, Math.floor(at(f, S.typing) * 5.6))
+    : f >= S.typing[1] && f < S.running[0] ? "/keep"
+    : within(f, S.back)
+      ? "ok, now the cache layer".slice(0, Math.floor(
+          interpolate(at(f, S.back), [0.30, 0.88], [0, 23], { extrapolateRight: "clamp" })))
+      : "";
+
+  const hint = f < S.printing[0] ? undefined
+    : f < S.summarize[0] ? "Worked for 18s"
+    : f < S.back[0] ? undefined : "Worked for 41s";
+
+  // One zoom at a time, so the moves never fight each other.
+  const active = ZOOMS.map((z) => ({ z, amt: zoomAmount(f, z) }))
+                      .reduce((best, cur) => (cur.amt > best.amt ? cur : best),
+                              { z: ZOOMS[0], amt: 0 });
+  const scale = 1 + (active.z.scale - 1) * active.amt;
+  const ox = active.z.ox * 100, oy = active.z.oy * 100;
+  // Scaling alone keeps the target where it already sat, often at an edge.
+  // This pan carries it to the middle of the frame, easing with the zoom.
+  const panX = (0.5 - active.z.ox) * 1920 * active.amt;
+  const panY = (0.5 - active.z.oy) * 1080 * active.amt;
+
+  const showPicker = within(f, S.picker) || within(f, S.menu);
+
   return (
-    <AbsoluteFill style={{ background: T.bg }}>
-      <Shell>
-        {f < S.summarize[0] && <Session f={f} />}
-        {within(f, S.zoom) && <Zoom f={f} />}
-        {(within(f, S.picker) || within(f, S.menu)) && <Picker f={f} />}
-        {within(f, S.summarize) && <Summarize f={f} />}
-        {within(f, S.back) && <Back f={f} />}
-        {f < S.card[0] && <StatusBar pct={pct} />}
-      </Shell>
+    <AbsoluteFill style={{ background: T.bg, overflow: "hidden" }}>
+      <AbsoluteFill style={{
+        transform: `translate(${panX}px, ${panY}px) scale(${scale})`,
+        transformOrigin: `${ox}% ${oy}%`,
+      }}>
+        {f < S.card[0] && (
+          <Shell>
+            <Scroll>
+              {f < S.summarize[0] && <Transcript f={f} />}
+              {within(f, S.summarize) && <Summarize f={f} />}
+              {within(f, S.back) && (
+                <>
+                  <Line text="● Summary of the earlier work" color={T.good} />
+                  <Line text="  The retry path and its backoff are done and reviewed." dim />
+                  <Line text="  Nothing is committed. The cache layer is next." dim />
+                </>
+              )}
+            </Scroll>
+            <Foot pct={pct} typed={typed} caret={Math.floor(f / 15) % 2 === 0}
+                  hint={hint} chip="fetcher" />
+            {showPicker && <Picker f={f} />}
+          </Shell>
+        )}
+      </AbsoluteFill>
       {f >= S.card[0] && <Card f={f} />}
     </AbsoluteFill>
   );
