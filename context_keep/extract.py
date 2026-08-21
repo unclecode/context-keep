@@ -27,6 +27,19 @@ SKIP_PREFIXES = (
 
 COMPACT_PREFIX = "This session is being continued from a previous conversation"
 
+# A compaction writes a boundary record. Everything before it is replaced by a
+# summary, EXCEPT the messages it names in compactMetadata.preservedMessages,
+# which stay word for word. The Rewind picker lists what is in the
+# conversation, so it lists those preserved messages plus everything after the
+# boundary. Reading the file without this shows far too few messages.
+_BOUNDARY = re.compile(r'"subtype":"compact_boundary"')
+_PRESERVED = re.compile(r'"preservedMessages":\{[^}]*?"uuids":\[([^\]]*)\]')
+_UUID_IN_LIST = re.compile(r'"([0-9a-f-]{36})"')
+# The picker skips anything the user did not type. Newer records say so
+# outright; older ones have no origin field and are treated as typed.
+_ORIGIN_KIND = re.compile(r'"origin":\{[^}]*?"kind":"([a-z-]+)"')
+_STACKED = re.compile(r'"stackedExpansion":true')
+
 # Field readers used to skip full JSON parsing on lines nothing reads.
 _UUID_LINK = re.compile(r'"uuid":"([^"]+)".*?"parentUuid":(null|"[^"]*")|'
                         r'"parentUuid":(null|"[^"]*").*?"uuid":"([^"]+)"')
@@ -95,6 +108,25 @@ def _active_branch(records, order):
     return _chain_from(records, order[-1]) if order else None
 
 
+def _conversation(records, order, preserved, boundary_at):
+    """The messages the Rewind picker can list.
+
+    A compaction replaces the past with a summary but keeps the messages named
+    in preservedMessages. So the conversation is those, plus everything from
+    the boundary onward, walked along the parent chain so the order is right.
+    With no compaction this is the active branch.
+    """
+    if boundary_at is None:
+        return _active_branch(records, order)
+    # The chain from the newest message stops at the boundary, because the
+    # boundary record has no parent. The preserved uuids are what lies beyond
+    # it. Taking every record after the boundary instead would pull in any
+    # fork written to the same file.
+    live = _chain_from(records, order[-1])
+    live.update(preserved)
+    return live
+
+
 def _longest_branch(records, order, is_message):
     """The chain that holds the most real user messages.
 
@@ -123,8 +155,11 @@ def _longest_branch(records, order, is_message):
 def load_timeline(path, branch="active"):
     """Parse one session JSONL file.
 
-    branch="active" keeps only the live conversation: the parent chain from
-    the newest message.
+    branch="conversation" keeps what the Rewind picker can list: the messages
+    a compaction preserved, plus everything after the newest boundary.
+    branch="active" keeps the parent chain from the newest message. After a
+    compaction that chain stops at the boundary, so it is far shorter than the
+    picker.
     branch="longest" keeps the chain with the most user messages. After a
     rewind that is the conversation the live branch replaced. Use it to read
     a session that was rewound after the work was done.
@@ -144,6 +179,9 @@ def load_timeline(path, branch="active"):
     records = {}   # uuid -> parentUuid
     order = []     # uuids in file order
     snapshot_ids = []
+    preserved = []     # uuids the newest compaction kept word for word
+    boundary_at = None  # position in `order` of the newest boundary
+    not_typed = set()   # uuids the picker never lists
     for line_number, line in enumerate(open(path, encoding="utf-8"), 1):
         # Most lines are tool output that this file never reads. Parsing them
         # as JSON costs most of the run time, so pull the two link fields with
@@ -152,6 +190,17 @@ def load_timeline(path, branch="active"):
             continue
         kind = _KIND.search(line)
         kind = kind.group(1) if kind else ""
+
+        if _BOUNDARY.search(line):
+            found = _PRESERVED.search(line)
+            preserved = _UUID_IN_LIST.findall(found.group(1)) if found else []
+            boundary_at = len(order)
+
+        origin = _ORIGIN_KIND.search(line)
+        if (origin and origin.group(1) != "human") or _STACKED.search(line):
+            uuid_here = _UUID_LINK.search(line)
+            if uuid_here:
+                not_typed.add(uuid_here.group(1) or uuid_here.group(4))
 
         # A snapshot line carries no uuid of its own, only the id of the
         # prompt it belongs to.
@@ -177,7 +226,9 @@ def load_timeline(path, branch="active"):
             if isinstance(obj, dict):
                 raw.append((line_number, obj))
 
-    if branch == "active":
+    if branch == "conversation":
+        chain = _conversation(records, order, preserved, boundary_at)
+    elif branch == "active":
         chain = _active_branch(records, order)
     elif branch == "longest":
         real = set()
@@ -215,6 +266,8 @@ def load_timeline(path, branch="active"):
                 ))
                 continue
             if not text or text.startswith(SKIP_PREFIXES):
+                continue
+            if obj.get("uuid") in not_typed:
                 continue
             if text == last_text:
                 continue

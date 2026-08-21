@@ -62,11 +62,10 @@ def write_html(path, session, stops, values, zones, dest):
 
 def report(path, top=3, palette=None, out=sys.stdout, html=False, branch=None):
     palette = palette or Palette(False)
-    # The picker can only select messages on the active branch, so that is the
-    # only branch whose positions are real. A rewind starts a new branch and
-    # leaves the old one in the file; suggesting a stop from the old branch
-    # sends the reader looking for a message the picker will never show.
-    tl = load_timeline(path, branch=branch or "active")
+    # Read what the Rewind picker can list. A compaction cuts the parent chain,
+    # so the "active" branch alone shows only the messages since the newest
+    # compaction, which is far fewer than the picker offers.
+    tl = load_timeline(path, branch=branch or "conversation")
     window = [c for c in score_timeline(tl) if not c.is_compact]
     # Show the session id, not whatever prefix a copied file carries.
     stem = os.path.basename(path).rsplit(".", 1)[0]

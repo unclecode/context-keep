@@ -76,7 +76,24 @@ order, with duplicates removed.
 
 ## Finding a transcript
 
-**The report reads the active branch only.** The Rewind picker can select
+**A compaction cuts the parent chain.** The boundary record has
+`"parentUuid": null`, so walking back from the newest message stops there and
+finds only the messages since the newest compaction. The picker shows many
+more, because a compaction keeps some messages word for word and names them in
+`compactMetadata.preservedMessages.uuids`. `branch="conversation"` takes the
+chain from the newest message plus those uuids, which is exactly what the
+picker lists. Verified against two real pickers: 159 entries and 61 entries,
+both exact.
+
+Taking every record after the boundary instead is wrong: a fork writes its
+messages into the same file, and they would be pulled in.
+
+The picker also skips anything the user did not type. Newer records carry
+`origin.kind`, seen as `human`, `task-notification` and `auto-continuation`,
+and a record with `stackedExpansion` is a command body, never listed. Older
+records have no `origin` field and count as typed.
+
+**The report reads the conversation branch.** The Rewind picker can select
 nothing else, so a stop taken from another branch sends the reader looking for
 a message that will never appear in the list. When the active branch is too
 short to summarize, the report says so and prints the `--branch longest`
