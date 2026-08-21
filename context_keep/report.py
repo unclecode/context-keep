@@ -13,6 +13,11 @@ from .rules import score_timeline
 from .zones import build, self_containment, usable_stops, safe_zones
 from .render import Palette, curve_chart
 
+# The Rewind picker prints "N more below" for the entry under the cursor, with
+# two entries visible beneath it. So the number to scroll to is the position
+# from the newest entry, minus 2. Measured against two real pickers.
+PICKER_OFFSET = 2
+
 FOCUS_TEXT = ("Keep exact: file names, line numbers, flag and field names, "
               "and the decision behind each one. Keep the wording of any plan "
               "or spec. Keep open questions. Drop the steps that only led to "
@@ -41,7 +46,7 @@ def quote(text, width=58):
 def write_html(path, session, stops, values, zones, dest):
     """Write the same chart as a page and return its path."""
     from .html import page
-    points = [(be - 3, v, m.timestamp[5:16], m.text)
+    points = [(be - PICKER_OFFSET, v, m.timestamp[5:16], m.text)
               for (k, be, m), v in zip(stops, values)]
     zs = [{"start_below": z["safest"][1] - 3, "end_below": z["most_compression"][1] - 3,
            "self": z["self"], "safest_text": z["safest"][2].text} for z in zones]
@@ -50,9 +55,14 @@ def write_html(path, session, stops, values, zones, dest):
     return dest
 
 
-def report(path, top=3, palette=None, out=sys.stdout, html=False, branch="longest"):
+def report(path, top=3, palette=None, out=sys.stdout, html=False, branch=None):
     palette = palette or Palette(False)
-    tl = load_timeline(path, branch=branch)
+    # The picker lists the active branch, so positions must come from it. A
+    # session that was rewound after the work was done has a short active
+    # branch; then the longest branch is the real conversation.
+    tl = load_timeline(path, branch=branch or "active")
+    if branch is None and len([c for c in tl.messages if not c.is_compact]) < 40:
+        tl = load_timeline(path, branch="longest")
     window = [c for c in score_timeline(tl) if not c.is_compact]
     # Show the session id, not whatever prefix a copied file carries.
     stem = os.path.basename(path).rsplit(".", 1)[0]
@@ -101,12 +111,12 @@ def report(path, top=3, palette=None, out=sys.stdout, html=False, branch="longes
         tag = palette.zone if i == 1 else palette.dim
         w(f"  {tag}zone {i}{palette.off}  {palette.dim}safe {z['self']:.2f}  "
           f"new work starts here (+{z['step']:.3f}){palette.off}")
-        w(f"    stop here     {palette.head}below~{bes - 3}{palette.off}  "
+        w(f"    stop here     {palette.head}below~{bes - PICKER_OFFSET}{palette.off}  "
           f"{palette.quote}\"{quote(ms.text)}\"{palette.off}")
         if ke == last_cut:
             w(f"    {palette.dim}anything newer is as safe, and saves more{palette.off}")
         elif ke != ks:
-            w(f"    or as late as {palette.head}below~{bee - 3}{palette.off}  "
+            w(f"    or as late as {palette.head}below~{bee - PICKER_OFFSET}{palette.off}  "
               f"{palette.quote}\"{quote(me.text)}\"{palette.off}")
         w()
 
@@ -119,7 +129,7 @@ def report(path, top=3, palette=None, out=sys.stdout, html=False, branch="longes
     best = zones[0]["safest"]
     w(f"  {palette.head}How to use it{palette.off}")
     w(f"    1. Press Esc twice.")
-    w(f"    2. Go up until the list shows “↓ {best[1] - 3} more below”.")
+    w(f"    2. Go up until the list shows “↓ {best[1] - PICKER_OFFSET} more below”.")
     w(f"       Check the message reads: \"{quote(best[2].text, 44)}\"")
     w(f"    3. Choose “Summarize up to here”.")
     w(f"    4. Paste this into the context box:")
@@ -143,7 +153,7 @@ def _no_break(stops, values, palette, w):
     picks = [len(stops) // 4, len(stops) // 2, (3 * len(stops)) // 4]
     for row in picks:
         k, be, m = stops[row]
-        w(f"    {palette.head}below~{be - 3:<5}{palette.off}  {values[row]:.2f}   "
+        w(f"    {palette.head}below~{be - PICKER_OFFSET:<5}{palette.off}  {values[row]:.2f}   "
           f"{k / n:>4.0%}   {palette.quote}\"{quote(m.text, 40)}\"{palette.off}")
     w()
     w(f"  {palette.dim}keeps: share of words after the stop that the kept messages "
