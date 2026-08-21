@@ -1,136 +1,142 @@
-# context-keep
+# Context Keep
 
-Finds where a long Claude Code chat can be summarized, and what must stay
-word for word.
+Your Claude Code chat is long. You want to shorten it without losing what you
+are working on. **Which message do you stop at?**
 
-Claude Code already does the summarizing. Press Esc twice, pick a message,
-and choose **"Summarize up to here"**: everything before it becomes one
-summary, everything from it onward stays untouched. This project only
-answers the hard part, which is *where*.
-
-## Use it
+`/keep` answers that.
 
 ```
-/keep                                    # in any Claude Code session
-python3 keep.py --color                  # straight in a terminal, with colour
-python3 keep.py --html                   # writes the chart as a page
-python3 keep.py --file <session.jsonl>   # any transcript
+/plugin marketplace add unclecode/context-keep
+/plugin install context-keep@context-keep
 ```
 
-It prints the curve, the safe zones, the position to scroll to in the
-Rewind picker, and the note to paste in the picker's context box.
+Then type `/keep` in any session.
 
-The command finds its own transcript from `$CLAUDE_CODE_SESSION_ID`.
+```
+  keep  session f4baca39 · 167 messages · 94 places to stop
 
-## The measure
+  self-containment
+  0.69 ┤                                             ▁▆▆▆▆▆▆▅▅▅▅▅▅▅▆▆▆▇█
+  0.66 ┤▅▁                                         ▁▂│
+  0.64 ┤  ▇▅▄▃▂▂▁▁▁▁▁▁▁▁▁▃▁                        │
+  0.61 ┤                   ▆▄▂▁▁▁▁ ▂▁▁             │
+  0.56 ┤                              ▇▅▄▁         │
+  0.54 ┤                                  ▄▄▃▁▁▁▁▁ │
+       └────────────────────────────────────────────────────────────────
+        ·············································▔▔▔ zone 1 ▔▔▔▔▔▔▔
+        older → newer
 
-A stop is safe when the messages after it do not need the messages before
-it. For every content word, find the message where it first appears. A stop
-is unsafe when the kept messages keep using words introduced before it,
-because the summary must then carry their meaning, and a summary loses
-detail.
+  zone 1  safe 0.70  new work starts here (+0.039)
+    stop here     below~48  "Make soem radar search today see what we ahve"
+    or as late as below~39  "we go this 150$ ... Lets make a new dir"
 
-    self_containment(i) = 1 - (tail word uses introduced before i)
-                              / (all tail word uses)
+  How to use it
+    1. Press Esc twice.
+    2. Go up until the list shows "↓ 48 more below".
+    3. Choose "Summarize up to here".
+    4. Paste this into the context box: ...
+```
 
-This falls as the stop moves later, while compression rises as the stop
-moves later. The two pull against each other, which is what makes an
-optimum exist.
+No network. No API key. No dependencies. It reads your session file and prints.
 
-The curve **steps up** where new work begins, because that work brings in
-the words the rest of the session uses. A step up starts a **safe zone**,
-which runs until the curve falls back. The zone's oldest end is where the
-work began; its newest end compresses most.
+## The part most people miss
 
-When a session is one connected piece of work there is no step, so there is
-no safe stop. The command then shows the trade instead: three stops along
-the curve, each with what it keeps and what it saves.
+Claude Code already summarizes a chat **partly**. Press Esc twice, pick a
+message, and the menu offers **"Summarize up to here"**: everything before that
+message becomes one summary, everything from it onward stays word for word.
 
-## Why not similarity
+That solves the hard half. It leaves the other half open: *which message?*
+Stop too early and you save nothing. Stop too late and the summary drops
+something you still need. `/keep` measures that and tells you.
 
-Every similarity measure failed, and the failure is the point. In the
-labeled session the user's own stop was the start of a research arc. Eight
-messages later came "create a directory, code and all", a stage change
-*inside* that arc. That inner change is semantically larger than the arc's
-own start, so every variant ranked it higher:
+## How it decides
 
-| variant | rank of the user's stop, out of 25 |
+A stop is safe when the messages after it do not need the messages before it.
+
+For every content word, find the message where it first appears. Then, for a
+given stop, count the word uses after it that were introduced before it. Those
+are borrowed, and a summary has to carry their meaning.
+
+```
+self-containment = 1 - borrowed uses / all uses after the stop
+```
+
+That number falls as the stop moves later. Compression rises as the stop moves
+later. The two pull against each other, so an optimum exists.
+
+The curve **steps up** where new work begins, because new work brings in the
+words the rest of the session uses. A step up starts a **safe zone**: stop
+anywhere inside it. The zone's oldest end is where the work began. Its newest
+end saves the most.
+
+When a session is one long piece of work there is no step and no safe stop. The
+command says so, and shows the trade instead: three stops, each with what it
+keeps and what it saves.
+
+## Why not just measure similarity
+
+Because it does not work, and the failure is interesting.
+
+In a labeled session the right stop was the start of a research arc. Eight
+messages later came *"create a directory, code and all"*, a stage change inside
+that same arc. That inner change is a **bigger** semantic jump than the arc's
+own beginning, so every similarity measure prefers it.
+
+Six variants, ranking the correct stop out of 25 candidates:
+
+| variant | rank |
 |---|---|
-| tail coherence - prefix overlap + compression | 14 |
-| mean pairwise, which has no size bias | 14 |
+| tail coherence − prefix overlap + compression | 14 |
+| mean pairwise similarity, no size bias | 14 |
 | mean pairwise, no compression term | 16 |
-| topic dip alone | 12 |
+| topic dip, TextTiling on embeddings | 12 |
 | coherence z-scored against random blocks of equal size | 19 |
 | topic dip + compression | 14 |
 
-The two-part split score is also degenerate. Sorted by score, the order was
-exactly the tail-size order, smallest tail first, with no exception. All
-three terms move with tail size and all three point the same way: coherence
-falls as the tail grows (0.424 to 0.365), overlap rises (0.771 to 0.841),
-compression falls (0.85 to 0.27). A bigger prefix *is* a smaller tail, so
-nothing pushes back. `experiments/variants.py` reproduces the table.
+The split score is also degenerate: sorted by score, the order is exactly the
+tail-size order, smallest tail first. All three terms move with tail size and
+all three point the same way, so nothing pushes back.
 
-Word dependency has no such flaw, and it separates a work start from a
-stage inside that work.
+Word dependency has no such flaw. `experiments/variants.py` reproduces the table.
 
-## Layout
+## Does it work
 
-| file | what it holds |
+A small model reads the same chat and picks its own stop, never seeing this
+tool's answer. Over 19 real sessions from three machines, 2,595 messages:
+
+| measure | result |
 |---|---|
-| `keep.py` | the command; finds the transcript, sets colour |
-| `context_keep/extract.py` | reads a session JSONL into messages and picker entries |
-| `context_keep/zones.py` | self-containment, safe zones. The measure that works |
-| `context_keep/report.py` | the printed report, shared by both entry points |
-| `context_keep/render.py` | the terminal chart |
-| `context_keep/html.py` | the same chart as a page |
-| `context_keep/rules.py` | rule scoring of boundary messages, used by the benchmark |
-| `context_keep/embedding.py` | MiniLM score against `prototypes.json`, benchmark only |
-| `context_keep/dip.py` | local topic change, benchmark only |
-| `judge/` | the blind Haiku judge and its batch runner |
-| `experiments/` | the record of what did not work |
+| its stop lands inside a zone | 14 of 19 |
+| inside, or within five messages | 17 of 19 |
+| time to read an 89 MB session | 0.28 s |
 
-`keep.py` needs only `extract.py`, `rules.py`, `zones.py`, `report.py` and
-`render.py`, which are standard library only. `numpy` and `onnxruntime` are
-needed only by the benchmark.
-
-## Branches
-
-A rewind leaves the old conversation in the file and starts a new branch.
-A session you rewound this morning can have four messages on its live
-branch while the conversation it replaced is complete beside it. So
-`load_timeline` takes `branch="active"`, `"longest"` or `"all"`.
-Reading the wrong one is the most common way to get a confusing answer.
-
-## Benchmark
+## Usage
 
 ```
-python3 judge/batch.py     # Haiku picks a stop blind, on every session in data/
-python3 bench.py --top 10  # rule and embedding scoring against labels/
+/keep                  # in Claude Code
+/keep --html           # also write the chart as a web page
+/keep --top 5          # show more zones
+
+python3 keep.py --color            # in a terminal, with colour
+python3 keep.py --file <file>      # any transcript
 ```
 
-The judge reads only the user's messages and picks its own stop. It never
-sees this tool's answer, so the score is agreement between two independent
-judgements. One call over 160 messages was unstable, giving row 137 then
-row 51 for the same session, so the judge asks twice: first list the pieces
-of work, then choose which one is current. Temperature is 0.
+## Install without the plugin
 
-On 19 sessions from three machines: **14 of 19** judge stops land inside a
-zone, **17 of 19** within five messages. About 5 cents and 20 seconds.
+```
+git clone https://github.com/unclecode/context-keep
+python3 context-keep/keep.py
+```
 
-`data/` holds the sessions and is git-ignored. `labels/` holds the stops
-the user chose by hand.
+Python 3.9 or newer. Nothing else.
 
-## Traps found the hard way
+## Docs
 
-- **Claude Code injects text as user messages.** Skill bodies arrive as
-  ordinary user messages and dump hundreds of words at one point, which
-  every later message then borrows. The largest fall in the first version
-  of the curve came from one of those, not from the conversation. They are
-  filtered in `extract.py`.
-- **A `type: "user"` record is often a tool result.** Ranking branches by
-  raw user-record count picks the branch with the most tool output.
-- **The picker list is not the message list.** It comes from the
-  `file-history-snapshot` records, one per prompt, and it includes slash
-  commands.
-- **The project folder is named after the directory Claude Code started
-  in**, not the current directory, so find a transcript by search.
+Design notes live in [`docs/context/`](docs/context/), one fragment per
+subsystem, each naming the files it covers. Start with
+[the measure](docs/context/foundation/self-containment.md) or
+[what did not work](docs/context/status/rejected-approaches.md).
+
+## Licence
+
+MIT.

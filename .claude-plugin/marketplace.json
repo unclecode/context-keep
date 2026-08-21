@@ -8,7 +8,13 @@
   "plugins": [
     {
       "name": "context-keep",
-      "description": "Run /keep to see where this chat can be summarized, and what to keep word for word.",
+      "displayName": "Context Keep",
+      "description": "Run /keep to see where this chat can be summarized, and what to keep word for word. Reads the session, no network, no dependencies.",
+      "author": {
+        "name": "unclecode",
+        "url": "https://github.com/unclecode"
+      },
+      "category": "productivity",
       "source": {
         "source": "github",
         "repo": "unclecode/context-keep"

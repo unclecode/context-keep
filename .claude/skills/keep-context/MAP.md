@@ -12,6 +12,15 @@ Regenerate via `scripts/build-map.py`.
 |---|---|
 | `.claude/skills/keep-context/fragments.config` | foundation/claude-code.md |
 | `bench.py` | status/benchmark.md |
+| `context_keep/__main__.py` | reference/keep-command.md |
+| `context_keep/dip.py` | reference/scoring-modules.md |
+| `context_keep/embedding.py` | reference/scoring-modules.md |
+| `context_keep/extract.py` | foundation/session-files.md |
+| `context_keep/html.py` | reference/keep-command.md |
+| `context_keep/render.py` | reference/keep-command.md |
+| `context_keep/report.py` | reference/keep-command.md |
+| `context_keep/rules.py` | reference/scoring-modules.md |
+| `context_keep/zones.py` | foundation/self-containment.md |
 | `experiments/sensitivity.py` | status/rejected-approaches.md |
 | `experiments/variants.py` | status/rejected-approaches.md |
 | `external:claude-code-2.1.237` | foundation/claude-code.md |
@@ -22,15 +31,6 @@ Regenerate via `scripts/build-map.py`.
 | `labels/cd7c0ef5.json` | status/benchmark.md |
 | `labels/edd44f35.json` | status/benchmark.md |
 | `prototypes.json` | reference/scoring-modules.md |
-| `context_keep/__main__.py` | reference/keep-command.md |
-| `context_keep/dip.py` | reference/scoring-modules.md |
-| `context_keep/embedding.py` | reference/scoring-modules.md |
-| `context_keep/extract.py` | foundation/session-files.md |
-| `context_keep/html.py` | reference/keep-command.md |
-| `context_keep/render.py` | reference/keep-command.md |
-| `context_keep/report.py` | reference/keep-command.md |
-| `context_keep/rules.py` | reference/scoring-modules.md |
-| `context_keep/zones.py` | foundation/self-containment.md |
 
 ## Fragment → sources
 
