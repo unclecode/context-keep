@@ -117,6 +117,26 @@ export const Rewind: React.FC<{
   </div>
 );
 
+/**
+ * One caption. It sits in a strip at the top or the foot, never over the thing
+ * the camera is looking at, and it rides above the zoom so it stays readable.
+ */
+export const Caption: React.FC<{ text: string; opacity: number; top?: boolean }> =
+  ({ text, opacity, top }) => (
+  <div style={{
+    position: "absolute", left: 0, right: 0,
+    ...(top ? { top: 54 } : { bottom: 58 }),
+    display: "flex", justifyContent: "center", opacity, pointerEvents: "none",
+  }}>
+    <div style={{
+      background: "#08080A", borderLeft: `5px solid ${T.accent}`,
+      padding: "20px 34px", maxWidth: 1500,
+      fontFamily: "'DejaVu Sans', system-ui, sans-serif", fontWeight: 600,
+      fontSize: 44, lineHeight: 1.22, color: T.ink, textAlign: "center",
+    }}>{text}</div>
+  </div>
+);
+
 /** The window frame everything sits inside. */
 export const Shell: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div style={{ position: "absolute", inset: 0, background: T.bg }}>

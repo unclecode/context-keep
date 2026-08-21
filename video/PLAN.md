@@ -1,57 +1,61 @@
 # The launch film
 
-24 seconds today, **30 seconds after the rework**, 1920x1080, no sound.
-Source in this folder. Render with:
+36 seconds, 1920x1080, no sound. Source in this folder. Render with:
 
     npx remotion render src/index.ts Demo out/context-keep.mp4 \
       --browser-executable=/usr/bin/google-chrome
 
-Every message in `src/data.ts` is invented. The chart, the zone numbers and
-the strength ratios come from a real run of `keep.py`.
+Every message in `src/data.ts` is invented. The chart is drawn by the real
+`context_keep.render.curve_chart`, from a curve shaped like the one in the
+article: a long decline, a cliff, a sudden step up, then a flat safe zone.
 
-## What the first cut got wrong
+## The camera
 
-1. **Too small for a phone.** Terminal text was 17px. It has to be about 28px,
-   line height 40.
-2. **No zoom.** A screen recording pushes in on the part that matters. The
-   first cut held one wide shot.
-3. **The layout is upside down.** Real Claude Code pins the input line at the
-   bottom and adds new output **above** it, pushing the history up. The first
-   cut printed downward from the top.
-4. **The status line is wrong.** Real Claude Code shows, at the very bottom, a
-   small bar then `34% (340k/1000k) · think:on`. Not a "context" label on the
-   right.
+Four zoom moves, each easing on a bezier, 0.33 0 0.15 1. A move may drift to
+a second target while it holds, so the camera follows the action instead of
+cutting to it. Every move scales and pans together, so its target lands in
+the middle of the frame.
 
-## The rework
-
-Layout: content anchored to the bottom, a rule above the input, a `>` prompt
-with a block cursor, a session-name chip on the right. Status line in the real
-format, from `81% (810k/1000k)` to `29% (290k/1000k)`.
-
-Five zoom moves, each a slow push in and out:
-
-| when | zoom on |
+| move | on |
 |---|---|
-| 0-2s | the status line, so 81% is unmissable |
-| 3-5s | the input line while `/keep` is typed |
-| 10-12s | the `stop here below~56` line |
-| 13-15s | the picker counter reaching `down 56 more below` |
-| 21-23s | the status line again, showing 29% |
+| 1 | the foot: the input line and the token count, held while `/keep` is typed |
+| 2 | the chart, the step up and `stop here below~56` |
+| 3 | the picker counter, held on 56, then drifting down to the menu, and out only after Summarizing appears |
+| 4 | the token count again, showing 29% |
 
-Small details that make it read as real, taken from screenshots: `Worked for
-18s`, the indented tool-call lines under it, and the right-aligned hint line.
+## Captions
+
+Short lines, large, in a strip that never covers what the camera is looking at.
+
+| when | caption |
+|---|---|
+| the chart appears | Every point is one place to stop. |
+| the step up | The line jumps where new work starts. |
+| zone 1 | Zone 1 is safe. Nothing after it needs what came before. |
+| `below~56` | So stop at message 56. |
+| the counter hits 56 | Same 56. This is the message. |
+| at 29% | 810k down to 290k. Nothing needed was lost. |
 
 ## Scenes
 
-| time | scene |
+| frames | scene |
 |---|---|
-| 0.0-2.5 | a long session, status at 81% |
-| 2.5-4.0 | `/keep` typed |
-| 4.0-5.0 | `Ran 1 shell command` |
-| 5.0-9.0 | the report prints, the chart draws column by column |
-| 9.0-11.5 | zoom to zone 1 |
-| 11.5-14.0 | Esc Esc, the picker scrolls, the counter counts to 56 |
-| 14.0-16.5 | the menu opens, the note pastes |
-| 16.5-19.0 | summarizing, the transcript collapses |
-| 19.0-22.0 | back to work, the status falls to 29% |
-| 22.0-24.0 | end card: the mark, the name, both install lines |
+| 0-90 | a long session, the token count at 81% |
+| 90-150 | `/keep` typed |
+| 150-186 | `Ran 1 shell command` |
+| 186-330 | the report prints, the chart draws column by column |
+| 330-432 | the chart and the recommended stop |
+| 432-546 | Esc Esc, the list scrolls until the counter reads 56 |
+| 546-591 | it stops on 56 and stays painted |
+| 591-720 | Enter, then Down four times one step at a time, then Enter |
+| 720-828 | summarizing, the past folds away |
+| 828-960 | back to work, the token count at 29% |
+| 960-1080 | end card: the mark, the name, both install lines |
+
+## Two faults that were fixed
+
+`menuOpen` had no end, so the layout stayed collapsed into the summary scene
+and the camera looked at empty space. Every scene flag now has both edges.
+
+The picker box grows and shows three rows instead of five when the menu opens,
+because the full list plus the menu runs past the foot of the frame.

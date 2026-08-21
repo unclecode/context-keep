@@ -1,10 +1,10 @@
 import React from "react";
 import { AbsoluteFill, interpolate, useCurrentFrame, spring, useVideoConfig, Easing }
   from "remotion";
-import { T, S, ZOOMS } from "./theme";
+import { T, S, ZOOMS, CAPTIONS } from "./theme";
 import { HISTORY, CHART, REPORT_HEAD, REPORT_TAIL, PICKER, SELECTED, MENU, NOTE }
   from "./data";
-import { Mark, Line, Foot, Shell, Scroll, Rewind } from "./parts";
+import { Mark, Line, Foot, Shell, Scroll, Rewind, Caption } from "./parts";
 
 const within = (f: number, [a, b]: readonly [number, number]) => f >= a && f < b;
 const at = (f: number, [a, b]: readonly [number, number]) => (f - a) / (b - a);
@@ -147,22 +147,38 @@ export const Demo: React.FC = () => {
   const active = ZOOMS.map((z) => ({ z, amt: zoomAmount(f, z) }))
                       .reduce((best, cur) => (cur.amt > best.amt ? cur : best),
                               { z: ZOOMS[0], amt: 0 });
-  const scale = 1 + (active.z.scale - 1) * active.amt;
-  const ox = active.z.ox * 100, oy = active.z.oy * 100;
-  const panX = (0.5 - active.z.ox) * 1920 * active.amt;
-  const panY = (0.5 - active.z.oy) * 1080 * active.amt;
+  const z = active.z;
+  const drift = z.m1 === undefined ? 0
+    : interpolate(f, [z.m1, z.m2!], [0, 1],
+        { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EASE });
+  const tScale = z.scale + (z.scale2 ?? z.scale) * 0 + ((z.scale2 ?? z.scale) - z.scale) * drift;
+  const tOx = z.ox + ((z.ox2 ?? z.ox) - z.ox) * drift;
+  const tOy = z.oy + ((z.oy2 ?? z.oy) - z.oy) * drift;
+  const scale = 1 + (tScale - 1) * active.amt;
+  const ox = tOx * 100, oy = tOy * 100;
+  const panX = (0.5 - tOx) * 1920 * active.amt;
+  const panY = (0.5 - tOy) * 1080 * active.amt;
 
-  const pickerOpen = within(f, S.picker) || within(f, S.menu);
-  const below = Math.round(interpolate(at(f, S.picker), [0.06, 0.78], [4, 56],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EASE }));
-  const menuOpen = within(f, S.menu);
-  const pick = menuOpen
-    ? Math.min(4, Math.floor(interpolate(at(f, S.menu), [0.04, 0.30], [0, 4],
-        { extrapolateRight: "clamp" })))
-    : -1;
-  const noteChars = menuOpen
-    ? Math.floor(interpolate(at(f, S.menu), [0.42, 0.94], [0, NOTE.length],
-        { extrapolateRight: "clamp", easing: EASE }))
+  const pickerOpen = f >= S.picker[0] && f < S.summarize[0];
+  // The list scrolls to 56, then stops there and stays painted.
+  const below = f < S.picker[1]
+    ? Math.round(interpolate(at(f, S.picker), [0.06, 0.88], [4, 56],
+        { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: EASE }))
+    : 56;
+  const hot = f >= S.hold56[0];
+
+  // Enter opens the menu. Then Down four times, one hard step each, with a
+  // real pause between them, the way a terminal answers a key.
+  const menuOpen = f >= S.menu[0] && f < S.menu[1];
+  const STEP = 13;                       // frames between key presses
+  const steps = Math.floor((f - S.menu[0] - 10) / STEP);
+  const pick = menuOpen ? Math.min(4, Math.max(0, steps)) : -1;
+  const chosen = menuOpen && f >= S.menu[0] + 10 + 4 * STEP + 8;
+  // The note is pasted only after the choice is made.
+  const noteChars = chosen
+    ? Math.floor(interpolate(f, [S.menu[0] + 4 * STEP + 24, S.menu[1] - 16],
+        [0, NOTE.length], { extrapolateLeft: "clamp", extrapolateRight: "clamp",
+                            easing: EASE }))
     : 0;
 
   const menu = menuOpen ? (
@@ -170,7 +186,7 @@ export const Demo: React.FC = () => {
                   borderTop: `1px solid ${T.rule}` }}>
       {MENU.map((m, i) => (
         <Line key={i} text={(i === pick ? "❯ " : "  ") + m}
-              color={i === pick ? T.accent : T.dim} />
+              color={i === pick ? (chosen ? T.good : T.accent) : T.dim} />
       ))}
       {noteChars > 0 && (
         <Line text={"  add context: " + NOTE.slice(0, noteChars)} color={T.ink} />
@@ -186,7 +202,7 @@ export const Demo: React.FC = () => {
       }}>
         {f < S.card[0] && (
           <Shell>
-            <Scroll bottom={pickerOpen ? 830 : undefined}>
+            <Scroll bottom={menuOpen ? 962 : pickerOpen ? 830 : undefined}>
               {f < S.summarize[0] && <Transcript f={f} />}
               {within(f, S.summarize) && <Summarize f={f} />}
               {within(f, S.back) && (
@@ -199,14 +215,23 @@ export const Demo: React.FC = () => {
             </Scroll>
             <Foot pct={pct} typed={typed} caret={Math.floor(f / 15) % 2 === 0}
                   hint={hint} chip="fetcher" focus={pickerOpen}
-                  anchorTop={pickerOpen ? 252 : undefined} />
+                  anchorTop={menuOpen ? 120 : pickerOpen ? 252 : undefined} />
             {pickerOpen && (
-              <Rewind rows={PICKER} selected={SELECTED} above={132 - below}
-                      below={below} belowHot={below >= 56} top={392} menu={menu} />
+              <Rewind rows={menuOpen ? PICKER.slice(1, 4) : PICKER}
+                      selected={menuOpen ? SELECTED - 1 : SELECTED}
+                      above={132 - below} below={below} belowHot={hot}
+                      top={menuOpen ? 260 : 392} menu={menu} />
             )}
           </Shell>
         )}
       </AbsoluteFill>
+      {CAPTIONS.map((c, i) => {
+        const o = f < c.a || f > c.b ? 0
+          : f < c.a + 9 ? interpolate(f, [c.a, c.a + 9], [0, 1], { easing: EASE })
+          : f > c.b - 9 ? interpolate(f, [c.b - 9, c.b], [1, 0], { easing: EASE })
+          : 1;
+        return o > 0 ? <Caption key={i} text={c.text} opacity={o} top={c.top} /> : null;
+      })}
       {f >= S.card[0] && <Card f={f} />}
     </AbsoluteFill>
   );
