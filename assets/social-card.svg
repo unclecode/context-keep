@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <rect width="1280" height="640" fill="#131318"/>
+  <rect x="96.0" y="150" width="22" height="300" rx="11.0" fill="#EAE8E4"/>
+  <rect x="130.5" y="150" width="22" height="300" rx="11.0" fill="#EAE8E4"/>
+  <rect x="171.8" y="150" width="22" height="300" rx="11.0" fill="#EAE8E4"/>
+  <rect x="222.7" y="150" width="22" height="300" rx="11.0" fill="#EAE8E4"/>
+  <rect x="287.3" y="150" width="22" height="300" rx="11.0" fill="#EAE8E4"/>
+  <rect x="371.4" y="150" width="22" height="300" rx="11.0" fill="#B69BE0"/>
+  <rect x="483.1" y="150" width="22" height="300" rx="11.0" fill="#B69BE0"/>
+  <rect x="634.0" y="150" width="22" height="300" rx="11.0" fill="#B69BE0"/>
+  <text x="96" y="516" fill="#EAE8E4" font-family="Helvetica,Arial,sans-serif"
+        font-size="64" font-weight="600" letter-spacing="-1">context-keep</text>
+  <text x="96" y="566" fill="#9A98A6" font-family="Helvetica,Arial,sans-serif"
+        font-size="27">Find where a long Claude Code chat can be summarized,</text>
+  <text x="96" y="602" fill="#9A98A6" font-family="Helvetica,Arial,sans-serif"
+        font-size="27">and what to keep word for word.</text>
+</svg>
