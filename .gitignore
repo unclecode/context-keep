@@ -8,3 +8,7 @@ models/
 
 __pycache__/
 *.pyc
+
+# The film's build: dependencies, the render cache, and the rendered file.
+video/node_modules/
+video/out/
