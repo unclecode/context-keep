@@ -1,0 +1,686 @@
+<title>Context Keep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500;6..72,600&display=swap">
+
+<style>
+:root{
+  --paper:#F3F2F7; --panel:#FFFFFF; --sunk:#EBE9F2; --term:#15141C;
+  --ink:#17161F;   --muted:#66637A; --faint:#918EA3;
+  --rule:#DEDBE8;  --rule-soft:#E9E7F1;
+  --accent:#5B3E8C; --accent-soft:#EDE6F7;
+  --zone:#8F6410;  --good:#2E6B4F;
+  --termink:#E9E7F0; --termdim:#84819A; --termfaint:#5A5770; --termrule:#2A2836;
+  --shadow:0 1px 2px rgba(23,22,31,.05), 0 12px 32px -18px rgba(23,22,31,.28);
+  --lift:0 2px 4px rgba(23,22,31,.06), 0 26px 60px -30px rgba(23,22,31,.4);
+  --display:"Fraunces",Georgia,serif;
+  --body:"Newsreader",Georgia,serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#100F16; --panel:#181721; --sunk:#14131C; --term:#0B0A10;
+    --ink:#E9E7F0;   --muted:#948FA6; --faint:#6C6880;
+    --rule:#282634;  --rule-soft:#201F2A;
+    --accent:#B69BE0; --accent-soft:#241E33;
+    --zone:#DCA84A;  --good:#7FC3A1;
+    --termink:#E9E7F0; --termdim:#83809A; --termfaint:#56536B; --termrule:#25232F;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 18px 40px -22px rgba(0,0,0,.8);
+    --lift:0 2px 6px rgba(0,0,0,.6), 0 30px 70px -34px rgba(0,0,0,.9);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#100F16; --panel:#181721; --sunk:#14131C; --term:#0B0A10;
+  --ink:#E9E7F0;   --muted:#948FA6; --faint:#6C6880;
+  --rule:#282634;  --rule-soft:#201F2A;
+  --accent:#B69BE0; --accent-soft:#241E33;
+  --zone:#DCA84A;  --good:#7FC3A1;
+  --termink:#E9E7F0; --termdim:#83809A; --termfaint:#56536B; --termrule:#25232F;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 18px 40px -22px rgba(0,0,0,.8);
+  --lift:0 2px 6px rgba(0,0,0,.6), 0 30px 70px -34px rgba(0,0,0,.9);
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
+body{margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--body); font-size:19px; line-height:1.62;
+  font-optical-sizing:auto; -webkit-font-smoothing:antialiased}
+.wrap{max-width:1140px; margin:0 auto; padding:0 26px}
+.col{max-width:660px}
+a{color:var(--accent); text-underline-offset:3px}
+a:focus-visible,button:focus-visible,select:focus-visible{
+  outline:2px solid var(--accent); outline-offset:3px; border-radius:3px}
+
+h1{font-family:var(--display); font-weight:700; font-size:clamp(44px,7.2vw,80px);
+   line-height:.98; letter-spacing:-.03em; margin:0; text-wrap:balance;
+   font-variation-settings:"opsz" 144}
+h2{font-family:var(--display); font-weight:600; font-size:clamp(26px,3.3vw,34px);
+   line-height:1.14; letter-spacing:-.018em; margin:0 0 .5em; text-wrap:balance}
+h3{font-family:var(--display); font-weight:600; font-size:20px; margin:0 0 .35em}
+p{margin:0 0 1.05em}
+.lede{font-size:22px; line-height:1.5; color:var(--muted); max-width:40ch}
+.small{font-size:16px; color:var(--muted)}
+.eyebrow{font-family:var(--mono); font-size:11.5px; font-weight:500;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--accent); margin:0 0 20px}
+code{font-family:var(--mono); font-size:.85em; background:var(--sunk);
+  padding:.12em .38em; border-radius:4px}
+
+.top{display:flex; align-items:center; justify-content:space-between; gap:20px;
+  padding:22px 0; border-bottom:1px solid var(--rule); flex-wrap:wrap}
+.brand{display:flex; align-items:center; gap:12px}
+.brand .name{font-family:var(--mono); font-size:14px; font-weight:500; letter-spacing:.04em}
+.top nav{display:flex; gap:22px; font-family:var(--mono); font-size:12.5px}
+.top nav a{color:var(--muted); text-decoration:none}
+.top nav a:hover{color:var(--ink)}
+
+/* ----------------------------------------------------------------- hero */
+.hero{display:grid; grid-template-columns:1.06fr .94fr; gap:56px; align-items:center;
+  padding:76px 0 62px}
+@media (max-width:940px){.hero{grid-template-columns:1fr; gap:36px; padding:52px 0 40px}}
+.install{font-family:var(--mono); font-size:13.5px; line-height:2.05; margin:30px 0 0;
+  background:var(--sunk); border:1px solid var(--rule); border-radius:3px;
+  padding:16px 20px; color:var(--accent); overflow-x:auto; white-space:pre}
+.facts{display:flex; gap:30px; flex-wrap:wrap; margin-top:26px;
+  font-family:var(--mono); font-size:12px; color:var(--faint); letter-spacing:.04em}
+.facts b{display:block; font-size:22px; color:var(--ink); font-weight:500;
+  font-variant-numeric:tabular-nums; letter-spacing:-.01em; margin-bottom:2px}
+
+/* the before/after picture */
+.gauge-fig{background:var(--panel); border:1px solid var(--rule); border-radius:3px;
+  padding:26px 28px; box-shadow:var(--lift)}
+.gauge-fig .row{margin-bottom:20px}
+.gauge-fig .row:last-of-type{margin-bottom:0}
+.gauge-fig .lab{display:flex; justify-content:space-between; align-items:baseline;
+  font-family:var(--mono); font-size:11.5px; color:var(--muted); margin-bottom:8px}
+.gauge-fig .lab b{font-size:17px; font-weight:500; color:var(--ink);
+  font-variant-numeric:tabular-nums}
+.track{height:26px; background:var(--sunk); border-radius:2px; display:flex;
+  overflow:hidden; border:1px solid var(--rule)}
+.track i{display:block; height:100%}
+.track i.old{background:repeating-linear-gradient(135deg,var(--rule) 0 5px,transparent 5px 10px)}
+.track i.now{background:var(--accent); opacity:.85}
+.track i.sum{background:var(--good)}
+.track i.free{flex:1}
+.key{display:flex; gap:18px; flex-wrap:wrap; margin-top:16px;
+  font-family:var(--mono); font-size:11px; color:var(--faint)}
+.key span{display:flex; align-items:center; gap:7px}
+.key u{width:11px; height:11px; border-radius:2px; display:block; text-decoration:none}
+
+/* -------------------------------------------------------------- the toy */
+.toy{border:1px solid var(--rule); border-radius:4px; background:var(--panel);
+  box-shadow:var(--lift); overflow:hidden; margin-top:30px}
+.toybar{display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  padding:15px 20px; border-bottom:1px solid var(--rule); background:var(--sunk)}
+.toybar label{font-family:var(--mono); font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--faint)}
+select{font-family:var(--mono); font-size:13px; padding:7px 11px; color:var(--ink);
+  background:var(--panel); border:1px solid var(--rule); border-radius:3px; cursor:pointer}
+.go{font-family:var(--mono); font-size:12.5px; font-weight:500; letter-spacing:.09em;
+  text-transform:uppercase; padding:9px 20px; border:0; border-radius:3px;
+  background:var(--accent); color:var(--paper); cursor:pointer; margin-left:auto}
+.go:hover{opacity:.86}
+.go[disabled]{opacity:.4; cursor:default}
+.go.ghost{background:transparent; color:var(--muted); border:1px solid var(--rule);
+  margin-left:0}
+.go.ghost:hover{color:var(--accent); border-color:var(--accent); opacity:1}
+
+.pane{background:var(--term); color:var(--termink)}
+.chat{height:330px; overflow-y:auto; padding:18px 22px; font-family:var(--mono);
+  font-size:12px; line-height:1.72; scroll-behavior:smooth}
+.msg{display:flex; gap:10px; margin-bottom:5px}
+.msg .who{flex:none; width:12px; color:var(--termfaint)}
+.msg.u .txt{color:var(--termink)}
+.msg.a .txt{color:var(--termdim)}
+.msg .txt{white-space:pre-wrap; word-break:break-word}
+.fold{margin:10px 0 14px; border:1px dashed var(--good); border-radius:3px;
+  padding:13px 16px; background:rgba(127,195,161,.07)}
+.fold .h{font-size:11px; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--good); margin-bottom:7px; font-weight:500}
+.fold .b{color:var(--termdim); font-size:12px; line-height:1.7}
+.gone{opacity:.16; filter:saturate(.2)}
+.marker{border-top:1px solid var(--accent); margin:14px 0; position:relative}
+.marker span{position:absolute; top:-8px; left:0; background:var(--term);
+  padding-right:10px; font-size:10.5px; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--accent); font-weight:500}
+
+.report{border-top:1px solid var(--termrule); background:var(--term)}
+.report pre{font-family:var(--mono); font-size:12.5px; line-height:1.62; margin:0;
+  padding:20px 22px; white-space:pre; overflow-x:auto}
+.report .d{color:var(--termdim)} .report .z{color:var(--zone)}
+.report .a{color:var(--accent)} .report .g{color:var(--good)}
+.caret{display:inline-block; width:8px; height:14px; background:var(--termink);
+  vertical-align:-2px; animation:blink 1.05s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+
+.stage{border-top:1px solid var(--termrule); padding:18px 22px 20px; background:var(--term)}
+.stage h4{font-family:var(--mono); font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--termdim); margin:0 0 13px; font-weight:500}
+.zbtns{display:flex; flex-direction:column; gap:8px}
+.zbtn{display:flex; align-items:baseline; gap:13px; flex-wrap:wrap; width:100%;
+  text-align:left; font:inherit; cursor:pointer; padding:11px 14px; border-radius:3px;
+  background:transparent; color:var(--termink);
+  border:1px solid var(--termrule); border-left:3px solid var(--zone);
+  transition:border-color .15s, background .15s}
+.zbtn:hover{border-color:var(--accent); border-left-color:var(--accent)}
+.zbtn[aria-pressed="true"]{border-color:var(--accent); border-left-color:var(--accent);
+  background:rgba(182,155,224,.12)}
+.zbtn .n{font-family:var(--mono); font-size:12px; font-weight:500; color:var(--accent);
+  white-space:nowrap}
+.zbtn .g{font-family:var(--mono); font-size:10.5px; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--zone); white-space:nowrap}
+.zbtn .q{font-family:var(--mono); font-size:11.5px; color:var(--termdim);
+  flex:1; min-width:180px}
+
+.plotwrap{padding:18px 22px 6px; background:var(--term); border-top:1px solid var(--termrule)}
+.plotwrap svg{display:block; width:100%; height:auto; overflow:visible}
+.result{display:grid; grid-template-columns:repeat(auto-fit,minmax(158px,1fr));
+  gap:1px; background:var(--termrule); border-top:1px solid var(--termrule)}
+.cell{background:var(--term); padding:17px 20px}
+.cell .k{font-family:var(--mono); font-size:10.5px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--termdim); margin-bottom:6px}
+.cell .v{font-family:var(--mono); font-size:24px; font-weight:500;
+  font-variant-numeric:tabular-nums; letter-spacing:-.01em; color:var(--termink)}
+.cell .v.a{color:var(--accent)} .cell .v.g{color:var(--good)}
+.cell .s{font-family:var(--mono); font-size:10.5px; color:var(--termdim); margin-top:4px}
+figcaption{font-family:var(--mono); font-size:12px; line-height:1.6;
+  color:var(--faint); margin-top:12px}
+
+section{padding:66px 0 0}
+.three{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:22px; margin-top:34px}
+.card{background:var(--panel); border:1px solid var(--rule); border-radius:3px;
+  padding:24px; box-shadow:var(--shadow)}
+.card .n{font-family:var(--mono); font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--accent); margin-bottom:12px}
+.card p{font-size:16.5px; line-height:1.55; color:var(--muted); margin:0}
+.steps{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  border:1px solid var(--rule); border-radius:3px; overflow:hidden; margin-top:34px;
+  background:var(--rule); gap:1px}
+.step{background:var(--panel); padding:24px}
+.step .n{font-family:var(--mono); font-size:11px; color:var(--faint);
+  letter-spacing:.14em; margin-bottom:10px}
+.step h3{font-size:17px; font-family:var(--body); font-weight:600; margin:0 0 .3em}
+.step p{font-size:15.5px; line-height:1.5; color:var(--muted); margin:0}
+.readmore{display:flex; gap:26px; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; border:1px solid var(--rule); border-left:3px solid var(--accent);
+  background:var(--panel); border-radius:0 3px 3px 0; padding:28px 30px;
+  margin-top:36px; box-shadow:var(--shadow)}
+.readmore h3{font-family:var(--display); font-size:24px; margin:0 0 .25em}
+.readmore p{margin:0; color:var(--muted); font-size:16.5px; max-width:52ch}
+.btn{font-family:var(--mono); font-size:12.5px; font-weight:500; letter-spacing:.09em;
+  text-transform:uppercase; padding:12px 22px; border-radius:3px; text-decoration:none;
+  background:var(--accent); color:var(--paper); white-space:nowrap}
+.btn.ghost{background:transparent; color:var(--accent); border:1px solid var(--accent)}
+footer{border-top:1px solid var(--rule); margin-top:76px; padding:34px 0 80px;
+  font-family:var(--mono); font-size:12.5px; color:var(--faint);
+  display:flex; gap:26px; flex-wrap:wrap; justify-content:space-between}
+footer a{color:var(--faint)}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001ms !important;
+  transition-duration:.001ms !important; scroll-behavior:auto !important}}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true">
+        <rect x="6" y="14" width="3.4" height="36" rx="1.7" fill="currentColor"/>
+        <rect x="9.1" y="14" width="3.4" height="36" rx="1.7" fill="currentColor"/>
+        <rect x="12.8" y="14" width="3.4" height="36" rx="1.7" fill="currentColor"/>
+        <rect x="17.4" y="14" width="3.4" height="36" rx="1.7" fill="currentColor"/>
+        <rect x="23.3" y="14" width="3.4" height="36" rx="1.7" fill="currentColor"/>
+        <rect x="30.9" y="14" width="3.4" height="36" rx="1.7" fill="var(--accent)"/>
+        <rect x="41" y="14" width="3.4" height="36" rx="1.7" fill="var(--accent)"/>
+        <rect x="54.6" y="14" width="3.4" height="36" rx="1.7" fill="var(--accent)"/>
+      </svg>
+      <span class="name">context-keep</span>
+    </div>
+    <nav>
+      <a href="#try">Try it</a>
+      <a href="#how">How</a>
+      <a href="#article">The write-up</a>
+      <a href="https://github.com/unclecode/context-keep">GitHub</a>
+    </nav>
+  </div>
+
+  <div class="hero">
+    <div>
+      <p class="eyebrow">A Claude Code plugin</p>
+      <h1>Build the whole project in one session.</h1>
+      <p class="lede">Summarize the part you have finished. Keep the part you are
+        working on, word for word. The context stops filling with things that
+        stopped mattering.</p>
+      <pre class="install">/plugin marketplace add unclecode/context-keep
+/plugin install context-keep@context-keep</pre>
+      <div class="facts">
+        <div><b>0</b>network calls</div>
+        <div><b>0</b>dependencies</div>
+        <div><b>0.3s</b>on an 89 MB session</div>
+        <div><b>MIT</b>licence</div>
+      </div>
+    </div>
+
+    <div class="gauge-fig">
+      <div class="row">
+        <div class="lab"><span>Without it</span><b>81% full</b></div>
+        <div class="track">
+          <i class="old" style="width:64%"></i>
+          <i class="now" style="width:17%"></i>
+          <i class="free"></i>
+        </div>
+      </div>
+      <div class="row">
+        <div class="lab"><span>After <code style="font-size:11px">/keep</code></span><b>29% full</b></div>
+        <div class="track">
+          <i class="sum" style="width:6%"></i>
+          <i class="now" style="width:23%"></i>
+          <i class="free"></i>
+        </div>
+      </div>
+      <div class="key">
+        <span><u style="background:repeating-linear-gradient(135deg,var(--rule) 0 4px,transparent 4px 8px);border:1px solid var(--rule)"></u>finished work, still costing you</span>
+        <span><u style="background:var(--accent);opacity:.85"></u>what you are doing now</span>
+        <span><u style="background:var(--good)"></u>the summary that replaced it</span>
+      </div>
+      <p class="small" style="margin:18px 0 0; font-size:14.5px">The old half
+        becomes a few lines. The half you are working on is untouched: every
+        path, number and decision still exact.</p>
+    </div>
+  </div>
+</div>
+
+<div class="wrap" id="try">
+  <section style="padding-top:20px">
+    <div class="col">
+      <h2>Watch a session get shorter</h2>
+      <p class="small">Three of my own sessions, already measured. The
+        conversation shown is stand-in text, the length and every number are
+        real. Run <code>/keep</code>, hover a zone to see it on the curve, then
+        choose one and watch the old half fold away.</p>
+    </div>
+
+    <div class="toy">
+      <div class="toybar">
+        <label for="pick">Session</label>
+        <select id="pick"></select>
+        <button class="go ghost" id="reset" type="button">Reset</button>
+        <button class="go" id="run" type="button">Run /keep</button>
+      </div>
+
+      <div class="pane"><div class="chat" id="chat"></div></div>
+
+      <div class="report" id="report" hidden><pre id="screen"></pre></div>
+
+      <div class="stage" id="stage" hidden>
+        <h4>Hover a zone to see it on the curve. Click to apply it.</h4>
+        <div class="zbtns" id="zbtns"></div>
+      </div>
+
+      <div class="plotwrap" id="plotwrap" hidden><div id="plot"></div></div>
+      <div class="result" id="result" hidden></div>
+    </div>
+    <figcaption id="cap">Pick a session and press Run /keep.</figcaption>
+  </section>
+</div>
+
+<div class="wrap" id="how">
+  <section>
+    <div class="col">
+      <h2>What it measures</h2>
+      <p class="small">Take every content word used after a stop. For each use,
+        find where in the session that word first appeared. If it appeared after
+        the stop, the kept part brought it in itself. If it appeared before, the
+        kept part is leaning on something you are about to replace.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step"><div class="n">01</div><h3>Read the session</h3>
+        <p>The same messages the Rewind picker lists, straight from the file on
+          your disk.</p></div>
+      <div class="step"><div class="n">02</div><h3>Score every stop</h3>
+        <p>One number per possible stop: the share of the kept part's vocabulary
+          that it did not borrow.</p></div>
+      <div class="step"><div class="n">03</div><h3>Grade the steps</h3>
+        <p>Each rise is measured against the wiggle of its own curve, so a real
+          break and a sub-topic are told apart.</p></div>
+      <div class="step"><div class="n">04</div><h3>Name the position</h3>
+        <p>A number to scroll to, the message quoted, and a note to paste that
+          says what to keep exact.</p></div>
+    </div>
+
+    <div class="three">
+      <div class="card"><div class="n">A break, then a fall</div>
+        <p>The curve steps up, holds flat, then falls away. The flat run is the
+          safe zone. Stop anywhere inside it.</p></div>
+      <div class="card"><div class="n">A break, and it holds</div>
+        <p>It steps up and stays up. The break happened, and nothing since has
+          needed the past. Anything newer is as safe and saves more.</p></div>
+      <div class="card"><div class="n">One long topic</div>
+        <p>No step is clear, but the sub-topics are real. It grades them and lets
+          you choose, rather than pretending there is a clean answer.</p></div>
+    </div>
+  </section>
+</div>
+
+<div class="wrap" id="article">
+  <section>
+    <div class="readmore">
+      <div>
+        <h3>The write-up</h3>
+        <p>Why semantic similarity is degenerate here, the six variants that
+          failed, and what the psychology of memory says about doorways. With
+          every number you can reproduce.</p>
+      </div>
+      <a class="btn" href="https://claude.ai/code/artifact/82fb1087-e500-425e-9880-e9c4c8bb9c5c">Read it</a>
+    </div>
+
+    <div class="readmore" style="border-left-color:var(--zone)">
+      <div>
+        <h3>It only advises</h3>
+        <p>Claude Code does the summarizing, through <strong>Summarize up to
+          here</strong> in the Rewind picker. This plugin never writes to a
+          session file, never calls a network, and installs nothing. Every run
+          also leaves an interactive page on your own disk.</p>
+      </div>
+      <a class="btn ghost" href="https://github.com/unclecode/context-keep">Source</a>
+    </div>
+  </section>
+
+  <footer>
+    <span>context-keep &middot; MIT &middot; unclecode</span>
+    <a href="https://github.com/unclecode/context-keep">github.com/unclecode/context-keep</a>
+  </footer>
+</div>
+
+<script>
+const S = {"cliff":{"label":"A break, then a fall","session":"edd44f35","messages":188,"v":[0.5283,0.5248,0.5244,0.5335,0.5337,0.5317,0.5296,0.5296,0.53,0.5297,0.5288,0.5285,0.5272,0.5242,0.5202,0.5203,0.5186,0.5184,0.5171,0.5172,0.5072,0.5063,0.5043,0.5034,0.4969,0.4971,0.4963,0.4942,0.4929,0.4923,0.4924,0.492,0.4919,0.4917,0.4892,0.4895,0.4883,0.4879,0.4899,0.4895,0.4899,0.4897,0.49,0.4791,0.4817,0.4782,0.4721,0.4717,0.4718,0.465,0.4655,0.4648,0.4644,0.4648,0.4632,0.4629,0.4629,0.4627,0.4614,0.4912,0.491,0.4893,0.4864,0.5311,0.5275,0.5265,0.5244,0.5247,0.5093,0.5048,0.507,0.5078,0.5077,0.503,0.5017,0.5013,0.502,0.5,0.5,0.5007,0.5004,0.4996,0.6297,0.6301,0.632,0.6344,0.6715,0.6724,0.6699,0.6708,0.6723,0.6719,0.67,0.6704,0.6717,0.6726,0.6622,0.666,0.6658,0.6655,0.6632,0.6632,0.6643,0.6653,0.6638,0.6645,0.6657,0.6674,0.6681,0.6676,0.6688,0.6703],"below":[144,143,142,141,140,139,138,137,136,135,134,133,132,131,129,128,127,126,125,124,123,122,121,120,119,118,117,116,115,114,113,112,110,109,108,107,106,105,104,103,102,101,100,99,98,97,96,95,94,92,91,90,89,88,87,86,85,83,82,79,78,77,76,75,74,72,71,70,69,68,67,66,65,64,63,62,61,60,59,58,57,56,54,52,51,50,49,48,47,46,45,44,43,42,41,40,39,34,32,31,29,28,27,26,25,23,22,21,20,19,17,16],"k":[28,29,30,32,33,34,35,36,37,38,39,40,41,42,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,82,83,84,85,86,87,88,89,91,92,98,99,100,101,104,105,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,130,132,133,134,136,137,138,139,140,141,142,143,144,145,146,151,153,154,156,157,158,159,160,162,163,164,165,166,168,169],"t":["I hv no idea what happened her,e dont do liek this, I was expectibg we go through it u","ok I got it, now where is direcotry fot his u r doing now","yeah move, and I am thinkign what can I do with it, to be a good cotent, may be good t","Let me understand, u said already has WebFetchResult right?","u say honest but u didnt answer me at all. Confirm right now it has this tool to fetch","is it http request ur use browser? And how abotu web search?","I wan other ideas what I can do, not crawl4ai, there is already this fetch.","Wait I didnt get the issue explain agaun","Explain ur suggestion (1) ffor this, I didnt get that tpoo","a question, when u said more 8000 cut half keep 4000, is it for one tool resposne or u","Ok so here ue suggestion is to have a map of tool-run -> decision on how to cut? right","Do u knwo what Codex doesn? or Claude code when its source repo revealed... or pi agen","So then lets get the best of all of em, all pattern they matches and we add pi-agent s","yes yes of course, I want to get the best of all, then we brign here we build test pro","Wait \" 1,904 chars \u2192 model learns: the summary\" what u mean mdoel learns?","ok explain to me first all cut fucntiosn u already added and what left and in show sim","I am confused, let me undrstan, what exactly we do when event or hook is raised, we ge","Ok good no tell me what bug enough threshold and then list all these kind of cut we r ","is this cover all other three have?","Oh why you missed the Spull, I want that I told you in my message, and for streamign w","ok go ahead make all reducers or cuts","What do u mean three host adapters?","oh u mean we r not creating only for deepseek harness but also for pu and codex? no ne","I hv to understand betterm now how one can use this. lets create a new test directory ","ok done result was not much long btw.","u see, I told u step by step together, I wanted ot learn, see where you added this whe","So fodler is nothing just yaml files and js files for plugin rest manage by @deepseek-","show me eahc yaml structure how is it schema","what means row? make me familair if they defiend noe term for themsevles","which of current yml u created and which oen there at begining","umm why u have to keep repeat openrouter....","u didnt get me, why in each yaml u have to define again the oprn router?","u removed the main openrpotuier","why this one you put in ~/.dsh/cordis.patch.yml? and another question do we need multi","so tecnically u can add watch, reminder, d both into the same ~/.dsh/cordis.patch.yml?","ok now I am learnign, so explain to me, I didnt get when they r in different filem the","oh its in time of start? I though by sayifn \"when I ask it\" I meant in chat with AI","ok now I get it. Ok now I am lookign at: - insert: - id: toolshrink name: /Users/uncle","awesoem all good, now we go add this to cordis.patch.yml and with 3000 is good and tel","Should I make a new chat and repeat same thign or what?","I hvnt started just created new session then run tail comman say not found, is it crea","ok make it no so I can tail before I sen message, emoty file is ok","Nice, I saw and htis is tool resut: /client/locale/tests/locale.client.spec.ts /Users/","This is the answer: The output was truncated. Let me get a count by directory to answe","yes, proceed with it and later we make a good clean, easy to understand README. A tabe","Remember why we're doing this? We're doing this for my Twitter. So, again, a personal ","no no I didnt ask for y tweet, I was talking on rEADME, anyway tweet is goo but we tal","only 6? I though list is bigger, is it ll or we can add mor eusefull reducers?","ok to those and add Todo section in repo add these and also add semantic reducer (lexi","ok use mu gh make a repo and push, not forget set repo short description as well. Oh u","nice now is 8pm, good timing, lets swork on tweet this should be in way to get deepsee","one thing, Add a short hook, somethign get peopel who shrink context for deepsek, soem","no no so long, \"Context reducer for DeepSeek Harness! I awlays...\" like this","dont go next likne to be in visible area that is impoirtant, also make it a bit smalel","awesoem post it now no need scheduel I like it and github discussion make sure I see w","hv u post or not, if not I hv a questiob","u mentieoned 21, is it becoz better than 20?","did u add follow my twitter in readme and also crawl4ai ? sam eas before","let me knwo whaen post is published so we go for github discussion","Its Tus 18 aug 8am, check the post, seems we got a better result again. Although just ","Good, I like it, at least we got impression! I contineu no matter what, I wanna get on","ok one other thing, been looooong time I stucked in 2800+ followers, it goes up goes d","ok, stay positive, lets me see what I will have todsy later","while we start the day, peek a bit hacker news, twitter, tech forume, published articl","U know I want yourself be engages, not a python script, but of course you can build ur","Tell me more on item 1, is it one complainign how AI code is bad and need revieweing? ","Are you taling to me in similified english?!?! I Cant get you, talk better","ummm, why you think this is good, how help people? Usually, I do this for projects tha","I liked you respected him as well. That is good. I alwayse hv thsi question for such p","ok agree, now another question, is this topic worth of me make a video explain, or wri","yea u right, may be I make it nicely in a markdown user can add to their claude.md or ","Umm this is not what I do, I usually come up with more details, I gv some nice example","Regarding the long-running tasks, usually when I phrase it that way, the model has a t","ok good, lets see the post again, make an artifcat mimic twitter I liek to feel it, ma","I dont get it why repeated 2 times the main part? [Image #26]","When a user see this, do you think they r triggered by clickign more? I am not complai","ok I like it, does it helpo we bold the \"Burned out reviewing AI code? \"?","Oh now, I can myself selct a test and bold it, I mean *....* this approach","ok leav it doesnt matter, a question what is this Iron Man or Feynman u add in mockup?","no no its IronMan, never sayd Feynman","let me see one mroe time what is posting, show here","ok good we got or today content yeayy","hey mornign, 10am Aug 19, check the post stats","ok we know a demand signal, and we know what gvs us lesser impression, it was like my ","yes agree I continue as I feel dotn wanan force myself play a game untill I have data ","I liked toolshrink, took a bit of time, yesterday I liked it from my laziness, becoz i","Make soem radar search today see what we ahve","For 2 we shoudl do it has nothignt o do with X. (1) not itnerested, (3) sounds interes","ok lets reasdd thsi article first see is it really useful fo rme?","I dotn udnerstand at all, u talk to me like one read the paper abstract I hv zero idea","aya I see, exactly how I feel, what if we replicat ethe experiment for cloude mdoels? ","I use directly claude, to replcite exactly their research hwo much total cost? no worr","ony (4.8\u21925) check latest fees be accurate","ok, what was ur alternative experiment proposal? answer short simple","This I love, and how we publich it? a repo, result, a post ?","we go this 150$ this is mroe relevant. Lets make a new dir, preparion , plan, mane an ","helo me in simple understand this result . explain it, explain ur dummay example part ","contineu saame way explain scorign and rest ofthisng here but same style","ok here theseriteria coems from where? the bebchmar? [Image #28]","ok now how we judge? I mean all these u saidm how we judge is doen strict lose win los","oh ok so its just simple count.. now next questionif this benchmar is accepted in comm","ok, sounds good create a directory setup everythign, code and all, then we do a test l","let me understand what happened here, u run 5 each?","ok then lets run again, smalle, very small,listen to me, I dont need u do full run, I ","A side task 3hr ago I got Run failed from awesome-dsh-plugin check that","ok let do them cross 10 submit then we back to our research","a question is deepseek has parameter \"n\" so we can sample n response?","for deepsee test hoe many u suggest we do? 50?","how much totall deepseek costs? and can we do parallel? so we can do barch","How can be sure you dont suprise us by a bug at the end?! What if u make mock provider","no we do only deepseek for now before theat remind me which two deepseek model u chekc","why not use thei api directly I hv api key, then we can do better, list their mo0del t"],"cum":[1173,1429,2087,2843,2900,3154,3250,3604,3771,3957,3992,4079,4227,4358,4537,4547,5609,6741,7803,9776,10838,10916,11100,11577,11833,12162,12392,12540,12767,12824,13033,14095,14154,14256,14316,14391,14431,14489,14633,14720,14831,15025,15221,15227,15300,15437,15554,15658,15693,16235,16272,16307,16497,16922,16959,17108,17214,17258,17330,17392,17436,17508,17526,17557,17680,17790,17927,18011,18406,18522,18577,18690,18756,21838,22379,22608,23392,23528,23606,23717,23722,24267,24411,24585,24726,24802,24921,25029,25069,25113,25141,25213,25279,26536,27598,27622,27636,28698,28884,29053,29245,29305,31278,32340,33093,33338,33345,33475,33549,35328,35582,35849,35992,36301,36836,36949,37010,37148,37221,37295,37383,37420,37471,37508,37517,38579,39971,41033,43006,44068,44114,44139,44431,44609,44726,45788,45833,46067,46132,46218,46354,46455,46497,46565,46625,46794,46895,46901,46907,46915,46941,47013,47036,47100,47204,47229,47321,47630,47681,47849,47920,47949,48008,48077,48123,48197,48355,48357,48447,48546,48581,48584,48601,48693,48761,48808,48836,48895,48903,50314,50320,51036,51294,53080,53230,64916,65344,65411],"total":65411,"zones":[{"from":81,"to":111,"below":56,"v":0.5,"x":191,"grade":"clear","quote":"ok good we got or today content yeayy"},{"from":62,"to":111,"below":76,"v":0.49,"x":46,"grade":"clear","quote":"ok, stay positive, lets me see what I will have todsy later"},{"from":58,"to":76,"below":82,"v":0.46,"x":77,"grade":"clear","quote":"let me knwo whaen post is published so we go for github discus"}]},"hold":{"label":"A break, and it holds","session":"3a630583","messages":104,"v":[0.6544,0.6312,0.6314,0.6259,0.6253,0.625,0.6254,0.6125,0.5959,0.57,0.5697,0.5703,0.5736,0.5743,0.5671,0.5672,0.5591,0.559,0.5496,0.5443,0.5438,0.5401,0.537,0.5323,0.5291,0.5299,0.5349,0.5342,0.537,0.5333,0.5295,0.5203,0.5188,0.5126,0.514,0.5161,0.515,0.5107,0.5086,0.5079,0.5065,0.5051,0.5054,0.4883,0.4852,0.48,0.4817,0.4762,0.4799,0.4644,0.4649,0.467,0.4687,0.4583,0.4668,0.4765,0.4713,0.4832,0.486,0.4964,0.4982,0.5117,0.5119,0.5184,0.5312,0.5037,0.5354,0.5532,0.6275],"below":[85,84,83,82,81,80,79,78,77,76,75,74,73,71,70,69,68,67,66,65,64,62,60,56,55,54,53,52,51,50,49,48,47,46,45,44,43,42,41,40,39,38,37,36,35,34,33,32,29,28,27,25,24,23,22,21,20,19,18,17,16,14,13,12,11,10,9,8,7],"k":[16,17,18,19,20,21,22,23,24,25,26,27,28,30,31,32,33,34,35,36,37,39,41,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,72,73,74,76,77,78,79,80,81,82,83,84,85,87,88,89,90,91,92,93,94],"t":["in rhis machien another project I am usign reranking this is model and setup detsils, ","who gv better result, more accurate?","$$ Then better we bring it here apply them here to speed up, does that makes send?","Yes and another thing, I nee dyou dig into \" BM25 went 4ms \u2192 128ms and fetch 6ms \u2192 162","$$ amazing good job, before we go, tell me more on how u want to do this","$$ 1/ how u wanna retrieve google result? 2/ how u make sure ur 30 queries are agent s","For search use this curl \"https://gate.crawl4ai.com/search?q=coffee+beans&gl=us&hl=en\"","Ok the bigger question before we do anythign, I need a form of \"correctness\" meanign h","Lets do (1) later when we are more clsoed to reutrn a proper cotext, and even at that ","$$ For \"Deep\" why u dodnt take the secodn tie call? As I siad secodn call you will get","ok that is fine but rememeber if you call again same query , deep mdoe yuo get mdoe, s","How u read this \"warm path | retrieve 67ms (8 live) | rerank 821ms | total 1014ms\"?","right now pr run you laod the mdoel right? I wanna know how much I should be hard on y","ok now add the second deep call to harvest late pages (although I am plannign to icnre","gv me the queries so I tes in temrinal","Regarding the bad case, let me udnerstad, we got a junk pharmacy page, this is due to ","$$ Wait u mean the FineWeb Edu, suppsoed to be curated , had this?","We have to be very sensitive on this part. I don't want to build a system with hard-co","Yes this is kind of mindset we need here , remember this way if thinking in ur memory.","Before we do, is there anyway we increase the 226? I got 100G extra from hetzber cli b","Ok back to 1, and 2, we if we do, what I may lose? Time to time in this machine I rebu","Wait, can we use hetzner to expand this 100GB to 200Gb?","ok afetr this done I want us to spend a puch on this 16k/sec I am sure we r missign so","ok you did many thigns I lost the track you were waiting for that re-index 16k/sec the","Ok lets wait on speed up, back to movign to passages chunkign not docs anymroe, we did","``` Failure 1: uncalibrated sufficiency. My threshold (score \u2265 1.0 = \"answer-bearing\")","I detached form the session, u diod so many I forgot where we were. In short why we st","$$ are you still score docs and use docs in search and query? I remember you mentione ","$$ Explain to me how you did judging, I am suspected with your judgment midneset and l","Show me one of the case you called it failes, i wnna see it detailed","I cant accept passage loses, no way, Passage absolutly is better, however there r a fe","I dotn think we need to expand this google resutl, we r talkign about passages betetr ","Yes ofc you poull form fineweb, and dont launch a huge long oen first at first we try ","$$ First tell me how FineWeb is structured? is it url and clean markdown with meata da","$$ And we chunk the test parrt into passages, then we index all?","$$ A quesiton then when we pass query, you apply bm25, the rerank and then return top ","ok Here ien thign I see is your chunk size, small chunks are not good anymroe, many te","ok proceed, when its done make again one only test let see the improvement reprot me","how is it goign now, check its status","$$ I dint get your resport, very confusign, explain short n clear","$$ What is dedup? what we dedup?","$$ Why we have concept of PAGE at all? A doc break into passages (chunks) why we need ","$$ So no need that at all, what we do is when we have our top final K passges, we do o","u have a good point... but eventually it is agent uses what we returh ti produce the a","yes lets try it, before you do for all we have from fineweb try on a small set to make","I didn't ask you to score expansion toward query; specifically, I said we don't. I don","ok awesome, before wipe and rebuild, chekc code for indexing, see is there anything el","ok proceed and rebuild then before start to test new one wait for me","I want us do this distillation before we go for test, how we can do this? A binary fas","To avoid over engineering which I hate, unnecassery let see what is the thing we do gv","$$ So in short, what u wanna do now?","$$ We are testing based on this fine-tuned data, but soon we're going to have a lot mo","$$ We do not delete. One more thing: this is a binary classifier. Search to see if the","That's a good idea. We should be very careful not to create a bad dataset. Three thous","If the issue is labeling, this means you generated a bad dataset. If that is what you ","$$ One last thing, what you expect to achive afetr this relabelign and trainign again?","ok relabel the ambiguous ones then lets move to coverage if we get higher % is good en","$$ Quick question: If I want you to apply this to the latest ten results we got before","ok lets see all in all what we know now, what we have and built before move out of exp","$$ What u wanna do in coverage?","$$ Understand. You have to do the coverage, but before that, you said ask MMR. We shou","Can we start coevrage or we need to wait fo rhtis?","First tell me how you wanna do, how much? we r not gonna do the whole for now, we do w","I think this pipeline should handle any text, regardless of whether it is an encyclope","Let's forget about the geography question. We are not going to talk about it here. Lis","This is good. Let's create a very detailed run sheet document in Markdown format and p","We r on dev box hetzner machine, check this machien specs for me","Don't connect my question with delivery. This is a totally different question. For Nas","$$ In shrot what amchien u r suggesting?"],"cum":[124,9341,9402,9743,9803,10441,10574,10594,10609,10692,10745,10870,10932,10981,11044,11152,12816,12852,12934,13178,13250,13413,13651,14904,15845,15951,16226,16309,16411,16438,16684,16722,16831,16897,17536,17839,18004,18187,18210,18265,18273,18460,18466,18473,18481,18757,18880,20555,20673,20866,21012,21080,21929,22119,22728,22829,22893,23000,23378,23462,23499,23564,23596,24266,25018,25306,25676,26119,26304,26372,26381,26386,26908,27016,27052,27065,27535,27949,28326,29262,29348,29529,29772,29895,29926,30374,30386,30436,30615,31890,32240,32822,32886,33591,33631,33744,33908,33933,33970,33981,34141,34167,34200,34328],"total":34328,"zones":[{"from":65,"to":68,"below":10,"v":0.5,"x":34,"grade":"clear","quote":"This is good. Let's create a very detailed run sheet document "},{"from":59,"to":68,"below":17,"v":0.5,"x":9,"grade":"sub-topic","quote":"$$ What u wanna do in coverage?"},{"from":56,"to":68,"below":20,"v":0.47,"x":11,"grade":"sub-topic","quote":"ok relabel the ambiguous ones then lets move to coverage if we"}]},"long":{"label":"One long topic","session":"cd7c0ef5","messages":164,"v":[0.7982,0.7981,0.7951,0.7951,0.7915,0.7878,0.7868,0.7852,0.7807,0.7795,0.7797,0.779,0.7758,0.7737,0.7746,0.7766,0.7755,0.7745,0.7757,0.7718,0.7729,0.773,0.7732,0.7717,0.7209,0.7161,0.7159,0.7178,0.7192,0.7196,0.7182,0.7162,0.6987,0.7006,0.6604,0.4723,0.4716,0.4674,0.4402,0.4386,0.4403,0.4402,0.4415,0.439,0.4344,0.4329,0.4321,0.4313,0.4096,0.4184,0.4174,0.4205,0.4205,0.4191,0.4129,0.409,0.4111,0.4056,0.4094,0.4098,0.4221,0.4301,0.4305,0.4286,0.4288,0.4306,0.4254,0.4253,0.4402,0.4417,0.4407,0.4367,0.4312,0.4304,0.4307,0.4267,0.3932,0.3839,0.3857,0.3841,0.386,0.3946,0.3933,0.3906,0.3912,0.3924,0.3902,0.394,0.4007,0.4021,0.4042,0.4056,0.4036],"below":[131,130,129,128,127,126,124,123,122,121,120,119,118,117,116,115,114,113,112,111,110,109,108,107,106,105,104,103,102,101,100,99,98,96,95,94,93,92,91,90,88,87,86,84,83,80,79,78,77,75,74,73,70,69,68,66,65,64,63,62,61,60,59,58,57,56,55,53,52,51,49,47,46,44,40,39,38,37,36,35,32,31,28,27,26,22,21,20,19,18,17,14,13],"k":[26,27,28,29,30,31,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,52,53,54,55,56,57,58,59,60,62,63,65,66,67,68,69,71,72,73,75,76,79,80,81,83,86,87,88,91,92,93,95,96,97,98,99,100,101,102,103,104,105,106,108,109,110,112,114,115,117,121,122,123,124,125,126,129,130,133,134,135,139,140,141,142,143,144,147,148],"t":["When u say crawl-box r u talkign about c4agent? becoz these looks c4agent tasks","ok, and rememebr one question cgagent has --label set the profiel name, I assume those","ok check all pthe rparameters see is there aythign else we need to talk or all good","1/ We read HTML we shoudl not care coem from port or extension, then should continue w","GO, commit step 1 then build step 2 rememeber not commit after that","Ok do the test, build then wait fo rme, then we test.","one issue, look oage slaoded but non of images! which part caused this? explain first ","no not scroll, even hero section, think again! Wait I foudn soemthign browser sti is o","$$ do u mean proxy stopped the moment we detect we can hv cookie?","$$ This tets was cookie only? if we do html, does it cause stay longer?","why never happened before, did u make a chaneg ? what if proxy stays longer","$$ Ok I have one concern, when u say it closes after data is there, u mean html data r","Awesome, this is , ok good, this is good we save a lotd of money , ok now check the qu","ok do both, just not main chrome on mac studio,","ok just rememebr browser supposed to clsoe afetr a little delay, this is oart of c4age","GO with A, key by URL, commit current change then when udon wait fo rme","go but test other pages, I tested them a lot today, go two normal pages and report me ","commit step 3, lets explain what we do step 4","The explicit flag will become somethign llie want_html right? no env variable","ok commit and GO and wait fo rm to review code","commit step 4, we can discuss 5","wait, why we need to use same username?","Wait, this already tested, the old extesnion we installed it in all cloud chrome use s","HANDOFF \u2014 Chrome reader-extension template (solved in another timeline) The no-CDP min","Can you get subagent to do this in background while u go step 2? and can u make sure s","yeak fork can. if you sfork, u gv me a session id here I open it in terminal using res","ok the you do , make sure it just update docs and hwen done it stopped and yuo get not","commit the docs, then clean rebuild the Mac template, do 1-5 then wait for 5","done, make sure this time proeprly close this chrom not left in background","MAcbook is nto offline, I am workign with u via my macbook check it again","ok do u see REMINDER.md file? amd it injected to some of our previosu messages in this","I want to add some more rules. For this project, it's not in the global, so you can cr","I don't want to keep repeating myself. If you look at my previous messages, I keep tel","When we test, we test the entire range in the Crawl4AI ladder. This means testing plai","For my api key or test api key in header we add details, that how we always chekc u ca","lov eit so good, I love it, add their current status, then later we do one by one for ","ok one mroe thing, we cna create test pages, tht they rcalled \"...ah,... forgot soemth","totally agree lets do this first, then when ready, we back to test plan. I think this ","no we do here on dev machine, and I add A record in namecheap good?","I just added now, go deploy it","I can do either, if ebenfit on 2 we do that if no then go 1","awesome, this is good lets bck to test plan","I dotn get (1) how u wanan make it to be abel to support nboth cloud and chrome?","oh u right abotu domain... ummm what is ur suggestion? We can use this dynamic subdoma","I need to stay namecheap not cloudflare. And this doesnt confilict with *.crawl4ai.com","So when we done with all these, we repeat with actual url, right?","you dont wann aadd them to plan artifact? with the urs we selected","Ok awesoem, excited start case 1 \"engine http and cache miss\"","commit everythign n push then we do case 2","Ok let go Case 3 \"engine http-mint cookie on a chromebox\"","yes do it, liek the idea, first change test but when done dont start repeast Case 3, w","Wait, what u say is wrogn check again, new domain still we mint cookie and also we get","I dont think they hv these machin have no gpu hardware.","A little confuse, u say fix gate, which gate you r talkign about, remember \"gate\" is a","ok first let clsoe up the ficture story then we back to cookie didnt pool. and not for","let understand, wdym cookie did not pool? here wanted cookie replayed over HTTP, right","aiya fuck! Uodat ethe card, u shoudl always keep it updated, and afetr each ste as wel","ok Case 3 is Cookie + Http, means on 3 we test case that we get cookie and http reques","yes dont make thisn complicated, proeprly crate let me review again, remvo ethe error ","Let me make sure, when we do 3, we expect the http and light panda plan try and not en","this is wrong, \"Cookie rung (rung 5) \u2192 skipped, because the pool has no cookie yet.\" H","Exactly wanted to ask u be skeptic abotu fixture, we just built it ok, try itfirst rep","okk trace find bug propose the solutiuon","ok apply fix, dotn commit o I can reveiw code","commit it and do the deply and get all ready then way for me to start test","Wait why u say case 3 engline-fleet aiya [Image #43] I dont get youm Are u tryign to s","update the artifcat for al cases add their harvest and scrap details now","good however look still artifact is wrong, look here, why u say HARVETS: none Look thi","now is good, I liek it, lets do case 4","I wonder what u mean macbook is offline, you do have access tro it vial ut tailscale s","The 6 has no warm secodn try right?","I am not clear for ur explanation cant get the issue, but I dont recall that /needs-ch","ok I see u mean fuxture desn faik all level and not fai only on mac right??","ok got it this work only for mac btw but that is ok for now","ok Vendor for me is a temporary thing,s I may remvoe it, however the engine should sta","When Sounder makes a decision, it's a combination of multiple things. Some of them are","look closely at code see which part is makign the decision that if we wanan change des","Yes add it, dont commit do I reveiw","cool all good commit all deploy rerunt he caprcha case","Then we need to extend the concept of human to whe vendore return and is false.","ok make the chaneg on ficture yes should be what really happens in realtor using the K","Aiya I updated delet comand for archve to be stronger and still missign soemthign, yuo","If digin causes u to foud the definite solution try if","no need, lets now sync docs and speicaly for golden test to make sure all docuemnted a","All good, you can commit properly. Then, we will repeat our main test, but this time w","dont draw conclusion at all but one data, http-mint actual supports tough website, clo","yes use chrome and pick up a good candidate","yeah realtor sometimes work soemtimes not, my decision, we know its working to for now","what was the ur u used for case 4?","no I mean did u sekect any real url for this case?","So Case 5, what ur we have for this","Rememebr before Searh there were 2 or 3 thigns to do we decided to keep them, u remmeb","Ok 1, and 2 only then sync docs"],"cum":[332,469,597,798,904,1006,1010,1044,1333,1510,1527,1726,1919,1922,2030,2418,2623,3137,3232,3246,3357,3945,4322,4356,4376,4383,4462,4580,4663,5088,5155,5208,5210,5307,5438,5503,5574,5649,5915,6010,6057,6375,6446,6560,6605,6682,6729,6760,6799,6922,9893,10073,10669,10777,10894,10970,11044,11117,11208,12384,12759,12785,14707,14978,26664,26820,27377,27685,27752,27782,27807,27866,27909,27989,27997,28126,28257,28259,28276,28341,28407,28468,28649,28691,28872,28888,28945,29041,29244,29246,29259,29314,29452,29754,29778,29917,30027,30178,30317,30818,31661,31779,31819,31864,31938,32255,32327,32342,32864,32902,32999,33027,33062,33076,33320,33395,33412,33471,33476,33500,33521,33670,34448,34777,34812,34866,34945,34962,34979,35288,35557,35559,35572,35626,35857,36109,36126,36135,36149,36706,36749,36883,36917,36967,37002,37005,37027,37116,37147,37404,37582,37665,37823,38030,38765,39234,39720,39885,40215,40743,40807,41241,41259,41491],"total":41491,"zones":[{"from":67,"to":75,"below":53,"v":0.43,"x":9,"grade":"sub-topic","quote":"good however look still artifact is wrong, look here, why u sa"},{"from":57,"to":75,"below":64,"v":0.41,"x":14,"grade":"sub-topic","quote":"ok Case 3 is Cookie + Http, means on 3 we test case that we ge"},{"from":48,"to":76,"below":77,"v":0.41,"x":6,"grade":"weak","quote":"commit everythign n push then we do case 2"}]}};
+const ORDER = ['cliff','hold','long'];
+const esc = s => String(s).replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+
+/* ---- stand-in transcripts ------------------------------------------
+   The real messages are mine and stay private. These are invented, but the
+   count matches the session exactly, and the break lands where the real one
+   did, so the shape you see is the shape that was measured.               */
+function rng(seed){ let s = seed >>> 0;
+  return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
+
+const THEMES = {
+  cliff: { split: 123, a: 'retry', b: 'launch' },
+  hold:  { split: 91,  a: 'labels', b: 'coverage' },
+  long:  { split: -1,  a: 'cookies', b: 'cookies' }
+};
+const POOL = {
+  retry: { u:['wire the retry into the fetch path, keep the backoff',
+    'why did the second attempt fire after 40ms and not 400?',
+    'fix it, dont commit, I read the diff first',
+    'ok now the same treatment for the cache layer',
+    'show me the diff for fetch.rs only',
+    'that timeout is too short, make it 5s',
+    'add a test for the third attempt',
+    'run the suite, only the fetch tests',
+    'still failing on the jittered case',
+    'good. commit that one, message: fix backoff order'],
+    a:['Done. fetch.rs:212 now retries three times with the same backoff.',
+    'The multiplier was applied before the first sleep, not after.',
+    'Fixed at fetch.rs:220. Nothing committed.',
+    'Added retry to cache.rs:88, same policy object.',
+    'Here is the diff. 2 files changed, 34 insertions.',
+    'Set to 5000ms at config.rs:41.',
+    'Test added at tests/fetch.rs:76. It fails as expected.',
+    '14 passed, 1 failed: jitter_bounds.',
+    'The jitter upper bound was exclusive. Fixed.',
+    'Committed as 4f1a2c9.'] },
+  launch: { u:['ok different thing now. draft the launch post',
+    'shorter. people dont read that much',
+    'lead with the problem not the tool',
+    'what should the first line be?',
+    'I like that one. now the thread version',
+    'add the numbers, they carry it',
+    'check the repo link is right',
+    'schedule it for tomorrow morning'],
+    a:['Draft is 340 words, three paragraphs, one code block.',
+    'Cut to 180 words. The middle paragraph carried nothing.',
+    'Rewritten. It now opens on the scrolling problem.',
+    'Suggestion: name the pain in six words, then the fix.',
+    'Six posts. The third one holds the chart.',
+    'Added 191x and 13 to 15 of 19, both with their context.',
+    'Link checks out and the repo is public.',
+    'Nothing is sent. That is yours to press.'] },
+  labels: { u:['relabel the ambiguous ones, then move to coverage',
+    'what is the split now?','this one should be negative not neutral',
+    'batch the next fifty','how many are left?',
+    'skip the empty ones entirely','recount after the merge',
+    'export it as jsonl'],
+    a:['Relabelled 23 rows. 4 still ambiguous.',
+    'Now 61% positive, 24% negative, 15% neutral.',
+    'Updated row 118 and the two that matched it.',
+    'Fifty done. Eleven needed a second pass.',
+    '212 rows left in the queue.',
+    'Dropped 9 empty rows before labelling.',
+    'Recount after merge: 1,004 rows total.',
+    'Written to data/labels.jsonl, 1,004 lines.'] },
+  coverage: { u:['now coverage. what do you want to do there?',
+    'run it and show me the worst files',
+    'that one is generated, exclude it',
+    'good enough. write the run sheet'],
+    a:['I would start with the branch report, not the line report.',
+    'Three files under 40%: parse.py, io.py, retry.py.',
+    'Excluded. Coverage rises to 71%.',
+    'Run sheet written, 9 steps with the exact commands.'] },
+  cookies: { u:['case 3 is cookie plus http, we test that one next',
+    'still wrong, look at the header order',
+    'commit everything and push, then case 2',
+    'why does it pass locally and fail there?',
+    'add the cookie to the second request too',
+    'show me the raw response',
+    'that redirect is losing the header',
+    'try it with the session reused',
+    'ok that fixed it. next case',
+    'run all four cases once more'],
+    a:['Set up case 3 with both a cookie jar and a plain header.',
+    'The Cookie header was appended after Authorization.',
+    'Pushed. Case 2 is set up and ready to run.',
+    'The remote runner has no cookie jar by default.',
+    'Added it to the follow-up request at client.py:140.',
+    'Here is the response, 302 with three headers.',
+    'The redirect handler rebuilds the request and drops it.',
+    'Session reuse keeps the jar. It passes now.',
+    'Case 4 is set up.',
+    'All four pass. 12.4 seconds.'] }
+};
+
+function transcript(key){
+  const d = S[key], th = THEMES[key], r = rng(key.length * 7919 + d.messages);
+  const out = [];
+  for (let i = 0; i < d.messages; i++){
+    const phase = (th.split > 0 && i >= th.split) ? th.b : th.a;
+    const p = POOL[phase];
+    const isUser = i % 2 === 0;
+    const list = isUser ? p.u : p.a;
+    out.push({ who: isUser ? 'u' : 'a',
+               txt: list[Math.floor(r() * list.length)] });
+  }
+  return out;
+}
+
+/* ---- the transcript pane ------------------------------------------- */
+let CUR = null, LINES = [], PICKED = null;
+
+function renderChat(key, splitAt){
+  const lines = LINES;
+  const host = document.getElementById('chat');
+  let h = '';
+  if (splitAt != null){
+    const z = S[key].zones[PICKED];
+    h += `<div class="fold"><div class="h">Summary of the earlier work &middot; `
+       + `${splitAt} messages</div><div class="b">`
+       + `The finished work and the decisions behind it, in a few lines. `
+       + `Every file name, line number and choice that still matters is kept; `
+       + `the steps that only led to the answer are gone.</div></div>`;
+  }
+  lines.forEach((m, i) => {
+    const dim = (splitAt != null && i < splitAt) ? ' gone' : '';
+    if (splitAt != null && i === splitAt){
+      h += `<div class="marker"><span>kept word for word</span></div>`;
+    }
+    h += `<div class="msg ${m.who}${dim}" data-i="${i}">`
+       + `<span class="who">${m.who === 'u' ? '&rsaquo;' : '&bull;'}</span>`
+       + `<span class="txt">${esc(m.txt)}</span></div>`;
+  });
+  host.innerHTML = h;
+  if (splitAt != null){
+    const mk = host.querySelector('.marker');
+    if (mk) host.scrollTop = Math.max(0, mk.offsetTop - 90);
+  } else host.scrollTop = host.scrollHeight;
+}
+
+/* ---- the curve ------------------------------------------------------ */
+function drawPlot(key, hi, chosen){
+  const d = S[key], v = d.v, n = v.length;
+  const W = 1020, H = 236, L = 50, R = 20, T = 22, B = 30;
+  const lo = Math.min(...v), top = Math.max(...v), pad = (top - lo) * .14 || .02;
+  const X = i => L + (W - L - R) * i / (n - 1);
+  const Y = t => T + (H - T - B) * (1 - (t - lo + pad) / (top - lo + 2 * pad));
+  let g = '';
+  for (let k = 0; k <= 3; k++){
+    const t = lo - pad + (top - lo + 2 * pad) * k / 3, y = Y(t);
+    g += `<line x1="${L}" y1="${y.toFixed(1)}" x2="${W-R}" y2="${y.toFixed(1)}" stroke="var(--termrule)"/>`;
+    g += `<text x="${L-9}" y="${(y+4).toFixed(1)}" text-anchor="end" font-family="var(--mono)" font-size="10.5" fill="var(--termdim)">${t.toFixed(2)}</text>`;
+  }
+  d.zones.forEach((z, i) => {
+    const a = d.below.indexOf(z.below);
+    if (a < 0) return;
+    const b = Math.max(a, Math.min(n - 1, a + Math.abs(z.to - z.from)));
+    const on = (hi === i);
+    g += `<rect x="${X(a).toFixed(1)}" y="${T}" width="${Math.max(3, X(b)-X(a)).toFixed(1)}" height="${H-T-B}" fill="var(--zone)" opacity="${on ? .26 : .09}"/>`;
+    if (on){
+      g += `<line x1="${X(a).toFixed(1)}" y1="${T}" x2="${X(a).toFixed(1)}" y2="${H-B}" stroke="var(--zone)" stroke-width="1.5"/>`;
+      g += `<text x="${(X(a)+7).toFixed(1)}" y="${T+13}" font-family="var(--mono)" font-size="10.5" font-weight="500" fill="var(--zone)">zone ${i+1} &#183; ${z.x}&times; the noise</text>`;
+    }
+  });
+  const pts = v.map((t, i) => `${X(i).toFixed(1)},${Y(t).toFixed(1)}`);
+  g += `<path d="M${L},${H-B} L${pts.join(' L')} L${W-R},${H-B} Z" fill="var(--accent)" opacity=".09"/>`;
+  g += `<path d="M${pts.join(' L')}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>`;
+  if (chosen != null){
+    const a = d.below.indexOf(d.zones[chosen].below);
+    if (a >= 0){
+      g += `<line x1="${X(a).toFixed(1)}" y1="${T}" x2="${X(a).toFixed(1)}" y2="${H-B}" stroke="var(--good)" stroke-width="1.5"/>`;
+      g += `<circle cx="${X(a).toFixed(1)}" cy="${Y(v[a]).toFixed(1)}" r="5" fill="var(--good)" stroke="var(--term)" stroke-width="2"/>`;
+      g += `<text x="${X(a).toFixed(1)}" y="${H-9}" text-anchor="middle" font-family="var(--mono)" font-size="10.5" font-weight="500" fill="var(--good)">your stop</text>`;
+    }
+  }
+  g += `<line x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}" stroke="var(--termrule)"/>`;
+  g += `<text x="${L}" y="${H-9}" font-family="var(--mono)" font-size="10.5" fill="var(--termdim)">&#8592; older</text>`;
+  g += `<text x="${W-R}" y="${H-9}" text-anchor="end" font-family="var(--mono)" font-size="10.5" fill="var(--termdim)">newer &#8594;</text>`;
+  document.getElementById('plot').innerHTML =
+    `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Self-containment curve">${g}</svg>`;
+}
+
+/* ---- the report ------------------------------------------------------ */
+function reportLines(key){
+  const d = S[key], L = [];
+  L.push(`<span class="d">&rsaquo;</span> /keep`);
+  L.push('');
+  L.push(`  <span class="d">Ran 1 shell command</span>`);
+  L.push('');
+  L.push(`  <b>keep</b>  <span class="d">session ${d.session} &middot; ${d.messages} messages &middot; ${d.v.length} places to stop</span>`);
+  L.push('');
+  d.zones.forEach((z, i) => {
+    const word = z.grade === 'clear' ? 'a clear break'
+      : z.grade === 'sub-topic' ? 'a sub-topic inside the same work'
+      : 'barely above the noise';
+    L.push(`  <span class="z">zone ${i+1}  keeps ${z.v.toFixed(2)}  ${word}, ${z.x}x the noise</span>`);
+    L.push(`    <span class="a">stop here     below~${z.below}</span>  <span class="d">"${esc(z.quote)}&#8230;"</span>`);
+  });
+  L.push('');
+  L.push(`  <span class="d">explore it: file://~/.claude/context-keep/${d.session}.html</span>`);
+  return L;
+}
+
+let timer = null;
+function run(){
+  const key = document.getElementById('pick').value;
+  const btn = document.getElementById('run');
+  if (timer) clearTimeout(timer);
+  btn.disabled = true;
+  document.getElementById('report').hidden = false;
+  ['stage','plotwrap','result'].forEach(i => document.getElementById(i).hidden = true);
+  const screen = document.getElementById('screen');
+  const lines = reportLines(key);
+  const fast = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let i = 0;
+  screen.innerHTML = '<span class="caret"></span>';
+  (function step(){
+    if (i >= lines.length){ btn.disabled = false; showZones(key); return; }
+    screen.innerHTML = lines.slice(0, ++i).join('\n') + '\n<span class="caret"></span>';
+    timer = setTimeout(step, fast ? 0 : (i < 5 ? 120 : 52));
+  })();
+}
+
+function showZones(key){
+  const d = S[key];
+  document.getElementById('zbtns').innerHTML = d.zones.map((z, i) =>
+    `<button class="zbtn" type="button" data-i="${i}" aria-pressed="false">`
+    + `<span class="n">zone ${i+1} &middot; below~${z.below}</span>`
+    + `<span class="g">${z.grade} &middot; ${z.x}&times; the noise</span>`
+    + `<span class="q">&ldquo;${esc(z.quote)}&rdquo;</span></button>`).join('');
+  document.querySelectorAll('.zbtn').forEach(b => {
+    const i = +b.dataset.i;
+    b.addEventListener('mouseenter', () => drawPlot(key, i, PICKED));
+    b.addEventListener('focus',      () => drawPlot(key, i, PICKED));
+    b.addEventListener('mouseleave', () => drawPlot(key, PICKED, PICKED));
+    b.addEventListener('click', () => apply(key, i));
+  });
+  document.getElementById('stage').hidden = false;
+  document.getElementById('plotwrap').hidden = false;
+  drawPlot(key, null, null);
+  document.getElementById('cap').textContent =
+    'Each shaded band is a safe zone. Hover one to bring it forward.';
+}
+
+function apply(key, i){
+  const d = S[key], z = d.zones[i];
+  PICKED = i;
+  document.querySelectorAll('.zbtn').forEach(b =>
+    b.setAttribute('aria-pressed', String(+b.dataset.i === i)));
+  const at = d.below.indexOf(z.below);
+  const summarized = d.k[at];                 // messages before the stop
+  const kept = d.messages - summarized;
+  const dropped = d.cum[summarized - 1] || 0;
+  const after = (d.total - dropped) + dropped * 0.08;
+  const now = Math.max(6, Math.round(81 * after / d.total));
+  renderChat(key, summarized);
+  drawPlot(key, i, i);
+  document.getElementById('result').hidden = false;
+  document.getElementById('result').innerHTML = `
+    <div class="cell"><div class="k">Scroll to</div><div class="v a">below~${z.below}</div>
+      <div class="s">the position in the picker</div></div>
+    <div class="cell"><div class="k">Summarized</div><div class="v">${summarized}</div>
+      <div class="s">messages become a few lines</div></div>
+    <div class="cell"><div class="k">Kept exact</div><div class="v g">${kept}</div>
+      <div class="s">every path, number, decision</div></div>
+    <div class="cell"><div class="k">Context</div>
+      <div class="v">81% <span style="color:var(--termdim)">&rarr;</span> <span class="g">${now}%</span></div>
+      <div class="s">room to keep going</div></div>`;
+  document.getElementById('cap').textContent =
+    `Zone ${i+1}. The faded messages above the line are replaced by the summary. `
+    + `Everything below the line stays exactly as written.`;
+}
+
+/* ---- wiring ---------------------------------------------------------- */
+function load(key){
+  CUR = key; PICKED = null; LINES = transcript(key);
+  renderChat(key, null);
+  ['report','stage','plotwrap','result'].forEach(i =>
+    document.getElementById(i).hidden = true);
+  document.getElementById('run').disabled = false;
+  document.getElementById('cap').textContent =
+    `${S[key].messages} messages. Press Run /keep.`;
+}
+const sel = document.getElementById('pick');
+sel.innerHTML = ORDER.map(k =>
+  `<option value="${k}">${S[k].label} &middot; ${S[k].messages} messages</option>`).join('');
+sel.addEventListener('change', () => load(sel.value));
+document.getElementById('run').addEventListener('click', run);
+document.getElementById('reset').addEventListener('click', () => load(sel.value));
+load('cliff');
+</script>

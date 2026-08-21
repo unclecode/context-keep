@@ -105,3 +105,22 @@ answer.
 | `context_keep/render.py` | `Palette`, `curve_chart`, the marker row |
 | `context_keep/html.py` | the `--html` page |
 | `context_keep/__main__.py` | the research CLI, shares `report` |
+
+## The HTML page
+
+Every run writes `~/.claude/context-keep/{session}.html` and prints a `file://`
+link to it. `--no-html` turns that off.
+
+The terminal chart is small and cannot be explored. The page holds the same
+numbers and adds what the terminal cannot: move along the curve to read the
+message at every stop, hover a zone to bring it forward, click a zone to see
+its numbers, and copy the note with one button.
+
+The page uses system fonts and no script from anywhere else. The tool promises
+no network call, and a web font request would break that promise.
+
+`html.py` builds the page. `report.py` calls `write_html` after the note is
+built, so the page can carry the note and the side trips.
+
+Both the page and the terminal now subtract `PICKER_OFFSET`. The page used to
+subtract 3, so it named a message one place away from the terminal.

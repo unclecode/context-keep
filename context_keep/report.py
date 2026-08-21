@@ -7,6 +7,7 @@ Claude Code's own "Summarize up to here".
 
 import os
 import sys
+import urllib.request
 
 from .extract import load_timeline
 from .rules import score_timeline
@@ -43,20 +44,36 @@ def session_path(session_id=None):
     return hits[0] if hits else None
 
 
+def html_path(session):
+    """Where the page is written. One file per session, overwritten each run."""
+    folder = os.path.join(os.path.expanduser("~"), ".claude", "context-keep")
+    os.makedirs(folder, exist_ok=True)
+    return os.path.join(folder, f"{session}.html")
+
+
+def link(path):
+    """A file URL. Most terminals make this clickable."""
+    return "file://" + urllib.request.pathname2url(os.path.abspath(path))
+
+
 def quote(text, width=58):
     one = " ".join(text.split())
     return one if len(one) <= width else one[:width - 1] + "…"
 
 
-def write_html(path, session, stops, values, zones, dest):
-    """Write the same chart as a page and return its path."""
+def write_html(path, session, stops, values, zones, dest,
+               blocks=(), note="", messages=0):
+    """Write the same answer as a page and return its path."""
     from .html import page
     points = [(be - PICKER_OFFSET, v, m.timestamp[5:16], m.text)
               for (k, be, m), v in zip(stops, values)]
-    zs = [{"start_below": z["safest"][1] - 3, "end_below": z["most_compression"][1] - 3,
-           "self": z["self"], "safest_text": z["safest"][2].text} for z in zones]
+    zs = [{"below": z["safest"][1] - PICKER_OFFSET,
+           "end_below": z["most_compression"][1] - PICKER_OFFSET,
+           "self": z["self"], "strength": z["strength"], "grade": z["grade"],
+           "quote": quote(z["safest"][2].text, 70)} for z in zones]
     with open(dest, "w", encoding="utf-8") as fh:
-        fh.write(page(session, points, zs))
+        fh.write(page(session, points, zs, blocks=blocks, note=note,
+                      messages=messages))
     return dest
 
 
@@ -149,12 +166,6 @@ def report(path, top=3, palette=None, out=sys.stdout, html=False, branch=None):
               f"{palette.quote}\"{quote(me.text)}\"{palette.off}")
         w()
 
-    if html:
-        dest = os.path.join(os.path.expanduser("~/.claude"), f"keep-{session}.html")
-        write_html(path, session, stops, values, zones, dest)
-        w(f"  {palette.dim}chart written to{palette.off} {dest}")
-        w()
-
     best = zones[0]["safest"]
     islands = [(lo, hi, share) for lo, hi, share
                in supplying_blocks(per_msg, first_seen, best[0])
@@ -176,6 +187,16 @@ def report(path, top=3, palette=None, out=sys.stdout, html=False, branch=None):
     for chunk in _wrap(note, 66):
         w(f"       {palette.quote}{chunk}{palette.off}")
     w()
+
+    # The terminal chart is small and cannot be explored. Write the same
+    # answer as a page every run, and print a link the terminal can open.
+    if html:
+        blocks = supplying_blocks(per_msg, first_seen, best[0])
+        dest = html_path(session)
+        write_html(path, session, stops, values, zones, dest,
+                   blocks=blocks, note=note, messages=len(window))
+        w(f"  {palette.dim}explore it:{palette.off} {palette.head}{link(dest)}{palette.off}")
+        w()
     return 0
 
 
