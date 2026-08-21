@@ -25,16 +25,20 @@ the middle of the frame.
 
 ## Captions
 
-Short lines, large, in a strip that never covers what the camera is looking at.
+Warm yellow ground `#F2C14E`, dark grey text `#25242A`, a `#B8892C` border and
+a 16px radius. White on the terminal blended in and was missed.
 
-| when | caption |
-|---|---|
-| the chart appears | Every point is one place to stop. |
-| the step up | The line jumps where new work starts. |
-| zone 1 | Zone 1 is safe. Nothing after it needs what came before. |
-| `below~56` | So stop at message 56. |
-| the counter hits 56 | Same 56. This is the message. |
-| at 29% | 810k down to 290k. Nothing needed was lost. |
+Each caption carries its own height, as a fraction of the frame, so it lands
+next to the line it explains and never on top of it.
+
+| frames | height | caption |
+|---|---|---|
+| 236-300 | 0.86 | Every point is one place to stop. |
+| 306-366 | 0.87 | The line jumps where new work starts. |
+| 372-428 | 0.88 | Zone 1 is safe. Nothing after it needs what came before. |
+| 436-498 | 0.13 | So stop at message 56. |
+| 548-608 | 0.86 | Same 56. This is the message. |
+| 880-950 | 0.80 | 810k down to 290k. Nothing needed was lost. |
 
 ## Scenes
 

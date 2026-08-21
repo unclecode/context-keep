@@ -230,7 +230,7 @@ export const Demo: React.FC = () => {
           : f < c.a + 9 ? interpolate(f, [c.a, c.a + 9], [0, 1], { easing: EASE })
           : f > c.b - 9 ? interpolate(f, [c.b - 9, c.b], [1, 0], { easing: EASE })
           : 1;
-        return o > 0 ? <Caption key={i} text={c.text} opacity={o} top={c.top} /> : null;
+        return o > 0 ? <Caption key={i} text={c.text} opacity={o} y={c.y} /> : null;
       })}
       {f >= S.card[0] && <Card f={f} />}
     </AbsoluteFill>

@@ -12,6 +12,9 @@ export const T = {
   good: "#6FBF95",
   warn: "#E08B69",
   chip: "#9FC6B4",
+  note: "#F2C14E",      // warm yellow, the caption ground
+  noteInk: "#25242A",   // dark grey, the caption text
+  noteEdge: "#B8892C",  // the caption border
   mono: "'DejaVu Sans Mono', 'Menlo', monospace",
   fs: 28,                // terminal font size, sized for a phone
   lh: 40,                // line height
@@ -59,11 +62,11 @@ export const ZOOMS: Array<{
 ];
 
 /** Captions. Each is one short line, shown while the shot behind it runs. */
-export const CAPTIONS: Array<{ a: number; b: number; text: string; top?: boolean }> = [
-  { a: 236, b: 300, text: "Every point is one place to stop." },
-  { a: 306, b: 366, text: "The line jumps where new work starts.", top: true },
-  { a: 372, b: 424, text: "Zone 1 is safe. Nothing after it needs what came before.", top: true },
-  { a: 432, b: 492, text: "So stop at message 56.", top: true },
-  { a: 546, b: 606, text: "Same 56. This is the message.", top: true },
-  { a: 880, b: 950, text: "810k down to 290k. Nothing needed was lost." },
+export const CAPTIONS: Array<{ a: number; b: number; text: string; y: number }> = [
+  { a: 236, b: 300, y: 0.86, text: "Every point is one place to stop." },
+  { a: 306, b: 366, y: 0.87, text: "The line jumps where new work starts." },
+  { a: 372, b: 428, y: 0.88, text: "Zone 1 is safe. Nothing after it needs what came before." },
+  { a: 436, b: 498, y: 0.13, text: "So stop at message 56." },
+  { a: 548, b: 608, y: 0.86, text: "Same 56. This is the message." },
+  { a: 880, b: 950, y: 0.80, text: "810k down to 290k. Nothing needed was lost." },
 ];

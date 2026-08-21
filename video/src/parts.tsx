@@ -118,21 +118,23 @@ export const Rewind: React.FC<{
 );
 
 /**
- * One caption. It sits in a strip at the top or the foot, never over the thing
- * the camera is looking at, and it rides above the zoom so it stays readable.
+ * One caption. Warm yellow so it never blends into the terminal, dark text,
+ * rounded, with a border. It rides above the zoom and sits at the height the
+ * caller asks for, so it lands next to the thing it explains.
  */
-export const Caption: React.FC<{ text: string; opacity: number; top?: boolean }> =
-  ({ text, opacity, top }) => (
+export const Caption: React.FC<{ text: string; opacity: number; y: number }> =
+  ({ text, opacity, y }) => (
   <div style={{
-    position: "absolute", left: 0, right: 0,
-    ...(top ? { top: 54 } : { bottom: 58 }),
-    display: "flex", justifyContent: "center", opacity, pointerEvents: "none",
+    position: "absolute", left: 0, right: 0, top: `${y * 100}%`,
+    display: "flex", justifyContent: "center",
+    opacity, pointerEvents: "none", transform: "translateY(-50%)",
   }}>
     <div style={{
-      background: "#08080A", borderLeft: `5px solid ${T.accent}`,
-      padding: "20px 34px", maxWidth: 1500,
-      fontFamily: "'DejaVu Sans', system-ui, sans-serif", fontWeight: 600,
-      fontSize: 44, lineHeight: 1.22, color: T.ink, textAlign: "center",
+      background: T.note, color: T.noteInk, border: `3px solid ${T.noteEdge}`,
+      borderRadius: 16, padding: "18px 34px", maxWidth: 1640,
+      boxShadow: "0 18px 44px rgba(0,0,0,.55)",
+      fontFamily: "'DejaVu Sans', system-ui, sans-serif", fontWeight: 700,
+      fontSize: 44, lineHeight: 1.22, textAlign: "center",
     }}>{text}</div>
   </div>
 );
