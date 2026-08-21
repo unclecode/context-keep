@@ -1,0 +1,168 @@
+{
+  "fps": 30,
+  "duration_frames": 1080,
+  "comment": "Every sound the film needs, by frame. frame/30 gives the second.",
+  "cues": [
+    {
+      "at": 90,
+      "sound": "key",
+      "repeat": 5,
+      "every": 11,
+      "gain": -8,
+      "why": "/keep typed, one click per character"
+    },
+    {
+      "at": 148,
+      "sound": "enter",
+      "gain": -6,
+      "why": "the command is sent"
+    },
+    {
+      "at": 152,
+      "sound": "hum",
+      "hold": 34,
+      "gain": -20,
+      "why": "working"
+    },
+    {
+      "at": 186,
+      "sound": "print",
+      "repeat": 9,
+      "every": 15,
+      "gain": -17,
+      "why": "the report arrives, a soft tick per block"
+    },
+    {
+      "at": 332,
+      "sound": "hum",
+      "hold": 100,
+      "gain": -26,
+      "why": "room tone under the chart, so the film is never dead"
+    },
+    {
+      "at": 336,
+      "sound": "whoosh",
+      "gain": -14,
+      "why": "camera pushes in on the chart"
+    },
+    {
+      "at": 414,
+      "sound": "whoosh",
+      "gain": -17,
+      "why": "camera pulls back"
+    },
+    {
+      "at": 432,
+      "sound": "esc",
+      "repeat": 2,
+      "every": 9,
+      "gain": -9,
+      "why": "Esc twice"
+    },
+    {
+      "at": 434,
+      "sound": "hum",
+      "hold": 286,
+      "gain": -28,
+      "why": "room tone under the picker and the menu"
+    },
+    {
+      "at": 446,
+      "sound": "tick",
+      "repeat": 12,
+      "every": 8,
+      "gain": -19,
+      "why": "the list scrolls, the counter climbs"
+    },
+    {
+      "at": 500,
+      "sound": "whoosh",
+      "gain": -14,
+      "why": "camera pushes in on the counter"
+    },
+    {
+      "at": 546,
+      "sound": "land",
+      "gain": -7,
+      "why": "the counter stops on 56"
+    },
+    {
+      "at": 591,
+      "sound": "enter",
+      "gain": -6,
+      "why": "Enter opens the menu"
+    },
+    {
+      "at": 601,
+      "sound": "key",
+      "repeat": 4,
+      "every": 13,
+      "gain": -9,
+      "why": "Down four times, one per step"
+    },
+    {
+      "at": 692,
+      "sound": "enter",
+      "gain": -5,
+      "why": "Summarize up to here is chosen"
+    },
+    {
+      "at": 700,
+      "sound": "hum",
+      "hold": 96,
+      "gain": -20,
+      "why": "summarizing"
+    },
+    {
+      "at": 780,
+      "sound": "whoosh",
+      "gain": -17,
+      "why": "camera pulls back"
+    },
+    {
+      "at": 800,
+      "sound": "chime",
+      "gain": -9,
+      "why": "the summary lands"
+    },
+    {
+      "at": 862,
+      "sound": "whoosh",
+      "gain": -16,
+      "why": "camera pushes in on the token count"
+    },
+    {
+      "at": 868,
+      "sound": "key",
+      "repeat": 8,
+      "every": 10,
+      "gain": -10,
+      "why": "the next question typed"
+    },
+    {
+      "at": 960,
+      "sound": "rise",
+      "gain": -12,
+      "why": "the end card"
+    },
+    {
+      "at": 962,
+      "sound": "hum",
+      "hold": 116,
+      "gain": -27,
+      "why": "room tone under the end card"
+    }
+  ],
+  "sounds": {
+    "key": "one mechanical keyboard keystroke, dry, short, no room",
+    "enter": "a deeper mechanical keyboard Enter press, dry",
+    "esc": "a soft key tap, quieter than a keystroke",
+    "hum": "a quiet low electronic hum that can loop, no melody",
+    "print": "a very short soft digital tick, like text arriving",
+    "tick": "a tiny UI tick for a list scrolling one row",
+    "land": "a short soft confirm tick, a little brighter than tick",
+    "whoosh": "a low soft air movement, half a second, no impact",
+    "chime": "one clean short completion chime, warm, not bright",
+    "rise": "a gentle upward swell, one second, ending clean"
+  }
+}

@@ -63,3 +63,35 @@ and the camera looked at empty space. Every scene flag now has both edges.
 
 The picker box grows and shows three rows instead of five when the menu opens,
 because the full list plus the menu runs past the foot of the frame.
+
+## Sound
+
+No music. Only interface sound, at the frame where each thing happens.
+
+`audio/make_sounds.py` builds ten sounds from waveforms. Interface sounds are
+short and simple, so they are made here rather than bought or downloaded. Each
+one is mono, 48 kHz, 16 bit, and starts and ends at silence, so nothing clicks
+when it is mixed.
+
+| sound | what it is |
+|---|---|
+| key | a noise burst under a fast decay, plus a 130 Hz thud |
+| enter | the same, lower and longer |
+| esc | a softer, brighter tap |
+| hum | 68 Hz and 101.5 Hz together with filtered air, ends matched so it loops |
+| print | a very short soft blip, text arriving |
+| tick | a 2100 Hz blip, one row of a list |
+| land | 880 Hz then 1320 Hz, 45 ms apart |
+| whoosh | noise under a band that sweeps up then down |
+| chime | D5, A5 and D6 ringing out |
+| rise | a tone that climbs from 180 Hz to 440 Hz and ends clean |
+
+`audio/cues.json` says where every sound goes, by frame. `audio/mix.py` reads
+it and builds the track with ffmpeg: `adelay` places a clip, `volume` sets its
+level, `amix` sums them, `alimiter` catches the peaks.
+
+    python3 audio/make_sounds.py     # writes audio/clips/*.wav
+    python3 audio/mix.py             # writes out/context-keep-sound.mp4
+
+56 sounds are placed. The peak is -8.1 dB, so nothing clips. Only the first
+three seconds are silent, which is the idle shot before any key is pressed.
