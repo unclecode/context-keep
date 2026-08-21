@@ -4,6 +4,7 @@ status: reference
 sources:
   - experiments/variants.py
   - experiments/sensitivity.py
+  - experiments/term_weighting.py
 related:
   - foundation/self-containment.md
   - reference/scoring-modules.md
@@ -59,6 +60,22 @@ failed. Variant E removes the size effect statistically, and it failed worst.
 **Why.** In that session the user's stop was the start of a research arc. Eight messages
 later came "create a directory, code and all", a stage change inside the same arc. That
 inner change has the larger vocabulary shift, so every similarity variant preferred it.
+
+## Weighting a term by rarity does not help either
+
+The words borrowed most often in a long session are ordinary: `case`, `check`,
+`sure`, `back`, `code`, `test`. That looks like a flaw, so `term_weighting.py`
+tries to remove it four ways: inverse document frequency, its square, and
+dropping any term that appears in more than 10%, 5% or 3% of messages.
+
+None sharpens the curve. Zone starts do not move at all: `below~13` and
+`below~56` under every setting. Levels rise, shapes do not change. The tightest
+cap makes it worse, taking the strongest boundary from 128 times the wiggle
+down to 46.
+
+The reason: a common word appears in the dropped part and the kept part alike,
+so it adds to the borrowed uses and to the total together. It cancels in the
+ratio. The measure is already self-normalising against common vocabulary.
 
 ## What replaced them
 

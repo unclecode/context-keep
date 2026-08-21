@@ -26,5 +26,5 @@ covers (frontmatter `sources:`). Regenerate this index with
 | Fragment | Status | Covers |
 |---|---|---|
 | [The benchmark and the blind judge](status/benchmark.md) | shipped | prompt.py, run.py, batch.py, bench.py, … |
-| [What did not work](status/rejected-approaches.md) | reference | variants.py, sensitivity.py |
+| [What did not work](status/rejected-approaches.md) | reference | variants.py, sensitivity.py, term_weighting.py |
 

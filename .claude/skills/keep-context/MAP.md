@@ -22,6 +22,7 @@ Regenerate via `scripts/build-map.py`.
 | `context_keep/rules.py` | reference/scoring-modules.md |
 | `context_keep/zones.py` | foundation/self-containment.md |
 | `experiments/sensitivity.py` | status/rejected-approaches.md |
+| `experiments/term_weighting.py` | status/rejected-approaches.md |
 | `experiments/variants.py` | status/rejected-approaches.md |
 | `external:claude-code-2.1.237` | foundation/claude-code.md |
 | `judge/batch.py` | status/benchmark.md |
@@ -42,4 +43,4 @@ Regenerate via `scripts/build-map.py`.
 | `reference/keep-command.md` | `keep.py`, `report.py`, `render.py`, `html.py`, `__main__.py` |
 | `reference/scoring-modules.md` | `rules.py`, `embedding.py`, `dip.py`, `prototypes.json` |
 | `status/benchmark.md` | `prompt.py`, `run.py`, `batch.py`, `bench.py`, `cd7c0ef5.json`, `edd44f35.json` |
-| `status/rejected-approaches.md` | `variants.py`, `sensitivity.py` |
+| `status/rejected-approaches.md` | `variants.py`, `sensitivity.py`, `term_weighting.py` |

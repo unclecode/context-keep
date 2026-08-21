@@ -66,12 +66,64 @@ later. The two pull against each other, so an optimum exists.
 
 The curve **steps up** where new work begins, because new work brings in the
 words the rest of the session uses. A step up starts a **safe zone**: stop
-anywhere inside it. The zone's oldest end is where the work began. Its newest
-end saves the most.
+anywhere inside it.
 
-When a session is one long piece of work there is no step and no safe stop. The
-command says so, and shows the trade instead: three stops, each with what it
-keeps and what it saves.
+## Three shapes, three answers
+
+A rise of 0.03 means nothing on its own. The same rise is a clear break in a
+quiet curve and ordinary movement in a restless one. So every zone is measured
+against the wiggle of its own curve, and the command says which of three
+shapes you have.
+
+**1. A real break, with a fall after it.** The curve steps up, holds flat, then
+falls away. Stop anywhere in the flat run.
+
+```
+zone 1  keeps 0.66  a clear break, 29x the noise
+  stop here     below~50  "I liked toolshrink, took a bit of time, yesterday…"
+  or as late as below~39  "we go this 150$ ... Lets make a new dir"
+```
+
+**2. A real break, no fall.** The curve steps up and stays up. The break
+happened, and nothing since has needed the past.
+
+```
+zone 1  keeps 0.70  a clear break, 31x the noise
+  stop here     below~48  "Make soem radar search today see what we ahve"
+  anything newer is as safe, and saves more
+```
+
+**3. One long topic.** No step is clear, but the sub-topics are still there and
+still real. The command shows five of them, graded, so you can choose.
+
+```
+zone 1  keeps 0.51  a sub-topic inside the same work, 8x the noise
+zone 2  keeps 0.50  barely above the noise, 4x the noise
+```
+
+Measured: a real break scores 128 times the wiggle of its curve, while the
+sub-topics inside one long piece of work score 6 to 10. Both are real. Only the
+first is a break.
+
+When not even a sub-topic exists, the command shows the trade instead: three
+stops, each with what it keeps and what it saves. A long chat still has to be
+shortened, so an honest trade beats no answer.
+
+## What it drops entirely
+
+The measure knows how much the kept part still needs the past. It can also say
+**which** part supplies it. Splitting the dropped part into six blocks and
+attributing every borrowed word to the block that introduced it:
+
+```
+rows   0-7   65.3% #######################################
+rows   8-16  14.8% ########
+rows  17-24   2.3% #            <- a side trip
+rows  25-32   4.8% ##           <- a side trip
+```
+
+A block under 5% is a side trip. The later work never refers back to it, so the
+note you paste tells the summary to drop it whole.
 
 ## Why not just measure similarity
 
@@ -108,6 +160,7 @@ tool's answer. Over 19 real sessions from three machines, 2,595 messages:
 |---|---|
 | its stop lands inside a zone | 14 of 19 |
 | inside, or within five messages | 17 of 19 |
+| repeatability of that score over three runs | 13 to 15 |
 | time to read an 89 MB session | 0.28 s |
 
 ## Usage

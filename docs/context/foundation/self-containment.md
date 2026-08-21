@@ -77,6 +77,34 @@ safest zone comes first and a tie goes to the zone that saves more.
 An empty list is a real answer: the session is one connected piece of work with no step, so
 no stop is safe. `report.py` then prints the trade instead.
 
+## The three shapes a curve takes
+
+The curve answers a different question in each case, and the report says which
+one it is. `strength(values, rise)` divides a rise by the median wiggle of that
+same curve, and `grade(ratio)` turns it into a word.
+
+**1. A real change with a fall after it.** The curve steps up, holds flat, then
+falls away. The step is `clear`, 25 times the wiggle or more; one session
+measured 128. The flat run is the safe zone, and the fall is where the kept
+messages start borrowing again. Stop anywhere in the flat run.
+
+**2. A real change with no fall.** The curve steps up and stays up to the end
+of the session. Still `clear`, but the zone reaches the last usable stop, so
+the report prints "anything newer is as safe, and saves more" instead of a
+second position. This is the common case while work is still going on: the
+break happened, and nothing since has needed the past.
+
+**3. One long topic.** No step passes `clear`. The curve declines steadily and
+carries only sub-topics, graded `sub-topic` at 6 times the wiggle or more, and
+`weak` below that. Measured on one session: sub-topics at 9.5, 7.7 and 6.0
+times, against 128 for a real break in another. The report then shows five
+zones instead of three, because the reader must choose between sub-topics.
+When not even a weak zone exists, `_no_break` in `report.py` shows the trade:
+three stops with what each keeps and what each saves.
+
+A sub-topic is real, not noise. Rejecting it would leave a long session with
+no answer at all, and the reader still has to shorten the chat.
+
 ## Which part of the past is still needed
 
 `self_containment` says how much the kept messages still need the past. It
