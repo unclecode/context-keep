@@ -1,0 +1,10 @@
+# Real session transcripts. Private, and they can hold API keys people pasted.
+data/
+sessions/
+judge/results.json
+
+# The embedding model, 87MB, downloaded on demand.
+models/
+
+__pycache__/
+*.pyc

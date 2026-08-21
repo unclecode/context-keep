@@ -1,0 +1,13 @@
+{
+  "name": "context-keep",
+  "version": "0.1.0",
+  "description": "Finds where a long Claude Code chat can be summarized, and what must stay word for word. Adds /keep.",
+  "author": {
+    "name": "unclecode",
+    "url": "https://github.com/unclecode"
+  },
+  "repository": "https://github.com/unclecode/context-keep",
+  "homepage": "https://github.com/unclecode/context-keep",
+  "license": "MIT",
+  "keywords": ["context", "compaction", "summarize", "sessions", "rewind"]
+}

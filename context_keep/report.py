@@ -1,0 +1,170 @@
+"""Print where a chat can be summarized, and what to keep word for word.
+
+The report has three parts: the self-containment curve, the safe zones or
+the trade when there is no clean break, and the steps to apply one with
+Claude Code's own "Summarize up to here".
+"""
+
+import os
+import sys
+
+from .extract import load_timeline
+from .rules import score_timeline
+from .zones import build, self_containment, usable_stops, safe_zones
+from .render import Palette, curve_chart
+
+FOCUS_TEXT = ("Keep exact: file names, line numbers, flag and field names, "
+              "and the decision behind each one. Keep the wording of any plan "
+              "or spec. Keep open questions. Drop the steps that only led to "
+              "the answer.")
+
+
+def session_path(session_id=None):
+    """The transcript file for a session id.
+
+    The project folder is named after the directory Claude Code started in,
+    which is not always the current directory, so search all of them.
+    """
+    session_id = session_id or os.environ.get("CLAUDE_CODE_SESSION_ID")
+    if not session_id:
+        return None
+    hits = glob.glob(os.path.expanduser(
+        f"~/.claude/projects/*/{session_id}.jsonl"))
+    return hits[0] if hits else None
+
+
+def quote(text, width=58):
+    one = " ".join(text.split())
+    return one if len(one) <= width else one[:width - 1] + "…"
+
+
+def write_html(path, session, stops, values, zones, dest):
+    """Write the same chart as a page and return its path."""
+    from .html import page
+    points = [(be - 3, v, m.timestamp[5:16], m.text)
+              for (k, be, m), v in zip(stops, values)]
+    zs = [{"start_below": z["safest"][1] - 3, "end_below": z["most_compression"][1] - 3,
+           "self": z["self"], "safest_text": z["safest"][2].text} for z in zones]
+    with open(dest, "w", encoding="utf-8") as fh:
+        fh.write(page(session, points, zs))
+    return dest
+
+
+def report(path, top=3, palette=None, out=sys.stdout, html=False, branch="longest"):
+    palette = palette or Palette(False)
+    tl = load_timeline(path, branch=branch)
+    window = [c for c in score_timeline(tl) if not c.is_compact]
+    # Show the session id, not whatever prefix a copied file carries.
+    stem = os.path.basename(path).rsplit(".", 1)[0]
+    session = stem.split("_")[-1][:8]
+
+    def w(line=""):
+        print(line, file=out)
+
+    if len(window) < 40:
+        w(f"  {palette.head}keep{palette.off} {palette.dim}session {session}{palette.off}")
+        w(f"  This chat has {len(window)} messages. Too short to summarize yet.")
+        return 1
+
+    per_msg, first_seen = build([tl.messages[c.index - 1].text for c in window])
+    stops = usable_stops(tl, window)
+    values = [self_containment(per_msg, first_seen, k) for k, _, _ in stops]
+    zones = safe_zones(tl, window, top_k=top)
+
+    w()
+    w(f"  {palette.head}keep{palette.off}  {palette.dim}session {session} · "
+      f"{len(window)} messages · {len(stops)} places to stop{palette.off}")
+    w()
+
+
+    # The chart always draws. With a zone, paint the zone. Without one,
+    # paint nothing and let the trade table below carry the answer.
+    row_of = {k: i for i, (k, _, _) in enumerate(stops)}
+    marks = set()
+    if zones:
+        z1 = zones[0]
+        marks = set(range(row_of[z1["safest"][0]],
+                          row_of[z1["most_compression"][0]] + 1))
+    w(f"  {palette.dim}self-containment{palette.off}")
+    for line in curve_chart(values, marks=marks, palette=palette):
+        w(line)
+    w(f"  {palette.dim}      older → newer{palette.off}")
+    w()
+
+    if not zones:
+        return _no_break(stops, values, palette, w)
+
+    last_cut = stops[-1][0]
+    for i, z in enumerate(zones, 1):
+        ks, bes, ms = z["safest"]
+        ke, bee, me = z["most_compression"]
+        tag = palette.zone if i == 1 else palette.dim
+        w(f"  {tag}zone {i}{palette.off}  {palette.dim}safe {z['self']:.2f}  "
+          f"new work starts here (+{z['step']:.3f}){palette.off}")
+        w(f"    stop here     {palette.head}below~{bes - 3}{palette.off}  "
+          f"{palette.quote}\"{quote(ms.text)}\"{palette.off}")
+        if ke == last_cut:
+            w(f"    {palette.dim}anything newer is as safe, and saves more{palette.off}")
+        elif ke != ks:
+            w(f"    or as late as {palette.head}below~{bee - 3}{palette.off}  "
+              f"{palette.quote}\"{quote(me.text)}\"{palette.off}")
+        w()
+
+    if html:
+        dest = os.path.join(os.path.expanduser("~/.claude"), f"keep-{session}.html")
+        write_html(path, session, stops, values, zones, dest)
+        w(f"  {palette.dim}chart written to{palette.off} {dest}")
+        w()
+
+    best = zones[0]["safest"]
+    w(f"  {palette.head}How to use it{palette.off}")
+    w(f"    1. Press Esc twice.")
+    w(f"    2. Go up until the list shows “↓ {best[1] - 3} more below”.")
+    w(f"       Check the message reads: \"{quote(best[2].text, 44)}\"")
+    w(f"    3. Choose “Summarize up to here”.")
+    w(f"    4. Paste this into the context box:")
+    for chunk in _wrap(FOCUS_TEXT, 66):
+        w(f"       {palette.quote}{chunk}{palette.off}")
+    w()
+    return 0
+
+
+def _no_break(stops, values, palette, w):
+    """No step in the curve: one connected piece of work.
+
+    There is no safe place, so show the trade instead of refusing. Three
+    points spread along the curve, each with what it keeps and what it saves.
+    """
+    n = stops[-1][0]
+    w(f"  {palette.head}No clean break.{palette.off} This chat is one connected piece of work.")
+    w(f"  Any stop loses some detail. Here is the trade:")
+    w()
+    w(f"    {palette.dim}stop at      keeps   saves   the message there{palette.off}")
+    picks = [len(stops) // 4, len(stops) // 2, (3 * len(stops)) // 4]
+    for row in picks:
+        k, be, m = stops[row]
+        w(f"    {palette.head}below~{be - 3:<5}{palette.off}  {values[row]:.2f}   "
+          f"{k / n:>4.0%}   {palette.quote}\"{quote(m.text, 40)}\"{palette.off}")
+    w()
+    w(f"  {palette.dim}keeps: share of words after the stop that the kept messages "
+      f"introduced themselves.{palette.off}")
+    w(f"  {palette.dim}saves: share of the chat a summary would replace.{palette.off}")
+    w()
+    w(f"  Apply the same way: Esc twice, go to the position, "
+      f"“Summarize up to here”.")
+    return 0
+
+
+def _wrap(text, width):
+    line, out = "", []
+    for word in text.split():
+        if len(line) + len(word) + 1 > width:
+            out.append(line)
+            line = word
+        else:
+            line = f"{line} {word}".strip()
+    if line:
+        out.append(line)
+    return out
+
+

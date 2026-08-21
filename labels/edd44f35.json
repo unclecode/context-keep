@@ -1,0 +1,11 @@
+{
+  "session": "/home/claude/context-keep/sessions/edd44f35.jsonl",
+  "cut_points": [
+    {"ts": "2026-08-19T08:07", "note": "ok lets reasdd thsi article (user's pick)"}
+  ],
+  "boundaries": [
+    {"ts": "2026-08-19T11:30", "note": "cross 10 submit then back to research"},
+    {"ts": "2026-08-19T08:07", "note": "re-add article, user's cut choice"},
+    {"ts": "2026-08-17T06:55", "note": "clone deepseek harness repo"}
+  ]
+}

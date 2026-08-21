@@ -1,0 +1,36 @@
+{
+  "positive": [
+    "ok lets start the next task",
+    "go build it",
+    "now we move to the next step",
+    "back to our main work now",
+    "commit this, then start the next part",
+    "lets plan the new feature",
+    "ok we are ready to start the real test",
+    "time to deploy and sync everything",
+    "lets review a new set of points I have",
+    "I have a new idea, listen to my plan",
+    "start step one of the plan",
+    "go for step one",
+    "ok go, start now, wait for my review",
+    "we are done with this, next topic",
+    "lets clone that repo and study it",
+    "new bug to fix, look at this"
+  ],
+  "negative": [
+    "explain this to me again",
+    "why did this fail",
+    "show me the code for that",
+    "wait, I am confused, what did you do",
+    "yes correct, continue",
+    "which file and line number is it",
+    "let me know when it is published",
+    "did you commit already",
+    "how many requests does it have",
+    "no you are wrong, check again",
+    "what does this word mean",
+    "ok got it",
+    "try it one more time",
+    "answer my question first, do nothing"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "context-keep",
+  "owner": {
+    "name": "unclecode",
+    "url": "https://github.com/unclecode"
+  },
+  "plugins": [
+    {
+      "name": "context-keep",
+      "description": "Run /keep to see where this chat can be summarized, and what to keep word for word.",
+      "source": {
+        "source": "github",
+        "repo": "unclecode/context-keep"
+      },
+      "homepage": "https://github.com/unclecode/context-keep"
+    }
+  ]
+}
