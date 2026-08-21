@@ -76,6 +76,12 @@ order, with duplicates removed.
 
 ## Finding a transcript
 
+**The report reads the active branch only.** The Rewind picker can select
+nothing else, so a stop taken from another branch sends the reader looking for
+a message that will never appear in the list. When the active branch is too
+short to summarize, the report says so and prints the `--branch longest`
+command rather than quietly reading the branch the user rewound away from.
+
 `keep.session_path` reads `$CLAUDE_CODE_SESSION_ID`, then searches
 `~/.claude/projects/*/<id>.jsonl`. It does not build the path from the current directory:
 the project folder is named after the directory Claude Code **started in**, and a Bash tool

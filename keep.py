@@ -2,7 +2,8 @@
 """keep: find where this chat can be summarized, and what to keep.
 
 Usage:
-  keep.py [--session ID] [--file PATH] [--top N] [--html] [--color|--no-color]
+  keep.py [--session ID] [--file PATH] [--top N] [--html] [--branch NAME]
+          [--color|--no-color]
 
 With no argument it reads $CLAUDE_CODE_SESSION_ID and finds the transcript.
 """
@@ -44,7 +45,8 @@ def main():
     # Colour is off when the output is not a terminal, which is the case when
     # Claude Code runs the command. --color forces it on.
     palette = Palette(("--color" in args or colors_on()) and "--no-color" not in args)
-    return report(path, top=int(opt("--top", 3)), palette=palette, html="--html" in args)
+    return report(path, top=int(opt("--top", 3)), palette=palette,
+                  html="--html" in args, branch=opt("--branch"))
 
 
 if __name__ == "__main__":

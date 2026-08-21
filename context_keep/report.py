@@ -62,12 +62,11 @@ def write_html(path, session, stops, values, zones, dest):
 
 def report(path, top=3, palette=None, out=sys.stdout, html=False, branch=None):
     palette = palette or Palette(False)
-    # The picker lists the active branch, so positions must come from it. A
-    # session that was rewound after the work was done has a short active
-    # branch; then the longest branch is the real conversation.
+    # The picker can only select messages on the active branch, so that is the
+    # only branch whose positions are real. A rewind starts a new branch and
+    # leaves the old one in the file; suggesting a stop from the old branch
+    # sends the reader looking for a message the picker will never show.
     tl = load_timeline(path, branch=branch or "active")
-    if branch is None and len([c for c in tl.messages if not c.is_compact]) < 40:
-        tl = load_timeline(path, branch="longest")
     window = [c for c in score_timeline(tl) if not c.is_compact]
     # Show the session id, not whatever prefix a copied file carries.
     stem = os.path.basename(path).rsplit(".", 1)[0]
@@ -78,7 +77,15 @@ def report(path, top=3, palette=None, out=sys.stdout, html=False, branch=None):
 
     if len(window) < 40:
         w(f"  {palette.head}keep{palette.off} {palette.dim}session {session}{palette.off}")
-        w(f"  This chat has {len(window)} messages. Too short to summarize yet.")
+        w(f"  This chat has {len(window)} messages that the Rewind picker can reach.")
+        w(f"  Too short to summarize yet.")
+        older = load_timeline(path, branch="longest")
+        older_count = len([m for m in older.messages if not m.is_compact])
+        if older_count > len(window) + 20:
+            w()
+            w(f"  {palette.dim}The file holds {older_count} messages, but a rewind put them")
+            w(f"  on a branch the picker cannot reach. To read that branch:")
+            w(f"  keep.py --file {path} --branch longest{palette.off}")
         return 1
 
     per_msg, first_seen = build([tl.messages[c.index - 1].text for c in window])
