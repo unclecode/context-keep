@@ -32,7 +32,7 @@ for r in sorted(results, key=lambda x: x.get("file", "")):
     z = " ".join(f"{y['start']}-{y['end']}" for y in r["zones"][:3]) or "none"
     cut = r["judge"].get("cut")
     verdict = f"zone {r['hit']}" if r.get("hit") else f"off by {r.get('distance')}"
-    print(f"{r['file'][:26]:<26} {r['messages']:>5} {str(stop):>6} {z[:26]:<26} {verdict}")
+    print(f"{r['file'][:26]:<26} {r['messages']:>5} {str(cut):>6} {z[:26]:<26} {verdict}")
 
 tin = sum(r.get("tokens_in", 0) for r in results)
 tout = sum(r.get("tokens_out", 0) for r in results)

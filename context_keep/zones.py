@@ -33,6 +33,7 @@ cliff disappeared and the step up stayed. Steps are the real structure.
 """
 
 import re
+import statistics
 from collections import Counter
 
 PLATEAU_TOL = 0.03   # a zone holds while the curve stays this close to the step
@@ -41,6 +42,8 @@ MIN_TAIL = 0.10      # and keep at least this share word for word
 MIN_STEP = 0.005    # below this the curve is flat noise, not a boundary
 STEP_SPAN = 5        # a step can spread over this many stops
 MIN_STOP_CHARS = 30   # "yes" or "go" never starts a piece of work
+STRONG = 25.0         # a rise this many times the curve's own wiggle is a clear boundary
+MODERATE = 6.0        # below this, the rise is barely above the wiggle
 
 STOP = set("""the a an and or but if then than that this these those there here
 what which who when where why how all any both each few more most other some such
@@ -137,6 +140,30 @@ def usable_stops(timeline, window):
     return out
 
 
+def strength(values, rise):
+    """How big a rise is against the typical wiggle of this curve.
+
+    An absolute rise means nothing on its own. The same 0.03 is a clear
+    boundary in a quiet curve and ordinary movement in a restless one.
+    Measured: a real topic change scored 128 times the wiggle, while the
+    sub-topics inside one long piece of work scored 6 to 10 times.
+    """
+    if len(values) < 3:
+        return 0.0
+    wiggle = statistics.median(abs(values[i] - values[i - 1])
+                               for i in range(1, len(values)))
+    return rise / wiggle if wiggle else 0.0
+
+
+def grade(ratio):
+    """A word for a strength ratio, so the reader is not left with a number."""
+    if ratio >= STRONG:
+        return "clear"
+    if ratio >= MODERATE:
+        return "sub-topic"
+    return "weak"
+
+
 def safe_zones(timeline, window, top_k=3):
     """Safe zones for one window, newest-first inside each zone.
 
@@ -149,11 +176,14 @@ def safe_zones(timeline, window, top_k=3):
     values = [self_containment(per_msg, first_seen, k) for k, _, _ in stops]
     zones = []
     for start, end, step in find_zones(values, top_k):
+        ratio = strength(values, step)
         zones.append({
             "most_compression": stops[end],
             "safest": stops[start],
             "self": values[start],
             "step": step,
+            "strength": ratio,
+            "grade": grade(ratio),
         })
     # The safest zone comes first. On a tie the later zone wins, because a
     # later cut summarizes more.

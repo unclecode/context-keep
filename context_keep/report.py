@@ -80,6 +80,8 @@ def report(path, top=3, palette=None, out=sys.stdout, html=False, branch=None):
     stops = usable_stops(tl, window)
     values = [self_containment(per_msg, first_seen, k) for k, _, _ in stops]
     zones = safe_zones(tl, window, top_k=top)
+    if zones and not any(z["grade"] == "clear" for z in zones):
+        zones = safe_zones(tl, window, top_k=max(top, 5))
 
     w()
     w(f"  {palette.head}keep{palette.off}  {palette.dim}session {session} · "
@@ -109,8 +111,11 @@ def report(path, top=3, palette=None, out=sys.stdout, html=False, branch=None):
         ks, bes, ms = z["safest"]
         ke, bee, me = z["most_compression"]
         tag = palette.zone if i == 1 else palette.dim
-        w(f"  {tag}zone {i}{palette.off}  {palette.dim}safe {z['self']:.2f}  "
-          f"new work starts here (+{z['step']:.3f}){palette.off}")
+        note = {"clear": "a clear break",
+                "sub-topic": "a sub-topic inside the same work",
+                "weak": "barely above the noise"}[z["grade"]]
+        w(f"  {tag}zone {i}{palette.off}  {palette.dim}keeps {z['self']:.2f}  "
+          f"{note}, {z['strength']:.0f}x the noise{palette.off}")
         w(f"    stop here     {palette.head}below~{bes - PICKER_OFFSET}{palette.off}  "
           f"{palette.quote}\"{quote(ms.text)}\"{palette.off}")
         if ke == last_cut:

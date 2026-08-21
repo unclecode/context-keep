@@ -48,6 +48,11 @@ and the distance to the nearest zone when it did not.
 
 `batch.py` runs the whole `data/` folder over 6 threads and prints the table.
 
+**The score is not repeatable.** Three runs of identical code gave 13, 14 and
+15 of 19, even with `temperature=0`. So this harness cannot resolve a
+difference smaller than about 2 sessions, and no change should be accepted or
+rejected on a one-run move. Human labels are the way out; see the plan.
+
 ## Result
 
 19 sessions from three machines, 2614 user messages, all with 100 or more messages on their
@@ -55,8 +60,8 @@ longest branch:
 
 | measure | result |
 |---|---|
-| judge stop inside a zone | 14 of 19 |
-| inside, or within 5 messages | 17 of 19 |
+| judge stop inside a zone | 13 to 15 of 19 |
+| inside, or within 5 messages | 17 to 18 of 19 |
 | errors | 0 |
 | cost | 173k input tokens, about 20 seconds, under 5 cents |
 
