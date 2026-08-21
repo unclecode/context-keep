@@ -8,6 +8,9 @@ are working on. Claude code and other coding agents provides two forms of summar
 
 `/keep` answers that.
 
+**[Try it in the browser](https://unclecode.github.io/context-keep/)** &middot;
+**[Read the write-up](https://unclecode.github.io/context-keep/article/)**
+
 ```
 /plugin marketplace add unclecode/context-keep
 /plugin install context-keep@context-keep
