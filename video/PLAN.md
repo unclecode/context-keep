@@ -66,32 +66,40 @@ because the full list plus the menu runs past the foot of the frame.
 
 ## Sound
 
-No music. Only interface sound, at the frame where each thing happens.
+No music. No sound on a camera move. No sound on the note pasted into the
+context box. Only the keys, the list, and the two moments that matter.
 
-`audio/make_sounds.py` builds ten sounds from waveforms. Interface sounds are
-short and simple, so they are made here rather than bought or downloaded. Each
-one is mono, 48 kHz, 16 bit, and starts and ends at silence, so nothing clicks
-when it is mixed.
+Five sounds are real recordings from **Kenney UI Audio**, CC0 public domain,
+so the keys are not synthetic. See `audio/kenney/LICENCE.md`.
 
-| sound | what it is |
+| sound | source |
 |---|---|
-| key | a noise burst under a fast decay, plus a 130 Hz thud |
-| enter | the same, lower and longer |
-| esc | a softer, brighter tap |
-| hum | 68 Hz and 101.5 Hz together with filtered air, ends matched so it loops |
+| key1, key2, key3 | Kenney click4, click5, click2 |
+| enter | Kenney click1 |
+| esc | Kenney click3 |
+| hum | 68 Hz and 101.5 Hz with filtered air, ends matched so it loops |
 | print | a very short soft blip, text arriving |
 | tick | a 2100 Hz blip, one row of a list |
 | land | 880 Hz then 1320 Hz, 45 ms apart |
-| whoosh | noise under a band that sweeps up then down |
 | chime | D5, A5 and D6 ringing out |
-| rise | a tone that climbs from 180 Hz to 440 Hz and ends clean |
+| rise | a tone climbing 180 Hz to 440 Hz, ending clean |
 
-`audio/cues.json` says where every sound goes, by frame. `audio/mix.py` reads
-it and builds the track with ffmpeg: `adelay` places a clip, `volume` sets its
-level, `amix` sums them, `alimiter` catches the peaks.
+A key cue uses the three clicks in turn, so a run of keystrokes never sounds
+like one sample repeated.
 
-    python3 audio/make_sounds.py     # writes audio/clips/*.wav
+**Every clip is normalised by peak, not by loudness.** `loudnorm` needs 400 ms
+to measure and these clips are 35 to 103 ms, so it left them 22 dB apart: one
+keystroke peaked at -38.9 dB and was inaudible. Peak normalising puts them all
+at about -4 dBFS, and the gain in `cues.json` then means the same for all.
+
+**Key frames come from the animation, not by hand.** `audio/build_cues.py`
+runs the same formula the film types with, so a click lands on its letter.
+`/keep` gives frames 102, 114, 126, 138, 150. The last question gives 23
+clicks from frame 871 to 944.
+
+    python3 audio/make_sounds.py     # the six built sounds
+    python3 audio/build_cues.py      # the 67 cues, from the animation
     python3 audio/mix.py             # writes out/context-keep-sound.mp4
 
-56 sounds are placed. The peak is -8.1 dB, so nothing clips. Only the first
-three seconds are silent, which is the idle shot before any key is pressed.
+Peak is -11.8 dB, so nothing clips. Only the first three seconds are silent,
+which is the idle shot before the first key.

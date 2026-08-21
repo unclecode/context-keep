@@ -19,12 +19,16 @@ DURATION = CUES["duration_frames"] / FPS
 
 def placements():
     """Flatten the cue list: one entry per clip that must be heard."""
-    out = []
+    out, turn = [], 0
     for c in CUES["cues"]:
-        clip = CLIPS / f"{c['sound']}.wav"
-        if not clip.exists():
-            sys.exit(f"missing sound: {clip}")
         for i in range(c.get("repeat", 1)):
+            name = c["sound"]
+            if name == "key":                    # rotate the three clicks
+                turn += 1
+                name = f"key{(turn % 3) + 1}"
+            clip = CLIPS / f"{name}.wav"
+            if not clip.exists():
+                sys.exit(f"missing sound: {clip}")
             frame = c["at"] + i * c.get("every", 0)
             out.append({"file": clip, "ms": round(frame / FPS * 1000),
                         "gain": c["gain"], "hold": c.get("hold", 0)})

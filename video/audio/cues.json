@@ -1,168 +1,415 @@
 {
   "fps": 30,
   "duration_frames": 1080,
-  "comment": "Every sound the film needs, by frame. frame/30 gives the second.",
+  "comment": "Written by build_cues.py. Key frames come from the same formula the film types with, so a click lands on its letter. There is no sound on a camera move, and none on the pasted note.",
   "cues": [
     {
-      "at": 90,
+      "at": 102,
       "sound": "key",
-      "repeat": 5,
-      "every": 11,
-      "gain": -8,
-      "why": "/keep typed, one click per character"
+      "gain": -11,
+      "why": "a character of /keep"
+    },
+    {
+      "at": 114,
+      "sound": "key",
+      "gain": -11,
+      "why": "a character of /keep"
+    },
+    {
+      "at": 126,
+      "sound": "key",
+      "gain": -11,
+      "why": "a character of /keep"
+    },
+    {
+      "at": 138,
+      "sound": "key",
+      "gain": -11,
+      "why": "a character of /keep"
     },
     {
       "at": 148,
       "sound": "enter",
-      "gain": -6,
+      "gain": -9,
       "why": "the command is sent"
     },
     {
-      "at": 152,
+      "at": 150,
+      "sound": "key",
+      "gain": -11,
+      "why": "a character of /keep"
+    },
+    {
+      "at": 150,
       "sound": "hum",
-      "hold": 34,
-      "gain": -20,
-      "why": "working"
+      "gain": -21,
+      "why": "working",
+      "hold": 34
     },
     {
       "at": 186,
       "sound": "print",
-      "repeat": 9,
-      "every": 15,
-      "gain": -17,
-      "why": "the report arrives, a soft tick per block"
+      "gain": -18,
+      "why": "a block of the report arrives"
+    },
+    {
+      "at": 201,
+      "sound": "print",
+      "gain": -18,
+      "why": "a block of the report arrives"
+    },
+    {
+      "at": 216,
+      "sound": "print",
+      "gain": -18,
+      "why": "a block of the report arrives"
+    },
+    {
+      "at": 231,
+      "sound": "print",
+      "gain": -18,
+      "why": "a block of the report arrives"
+    },
+    {
+      "at": 246,
+      "sound": "print",
+      "gain": -18,
+      "why": "a block of the report arrives"
+    },
+    {
+      "at": 261,
+      "sound": "print",
+      "gain": -18,
+      "why": "a block of the report arrives"
+    },
+    {
+      "at": 276,
+      "sound": "print",
+      "gain": -18,
+      "why": "a block of the report arrives"
+    },
+    {
+      "at": 291,
+      "sound": "print",
+      "gain": -18,
+      "why": "a block of the report arrives"
+    },
+    {
+      "at": 306,
+      "sound": "print",
+      "gain": -18,
+      "why": "a block of the report arrives"
     },
     {
       "at": 332,
       "sound": "hum",
-      "hold": 100,
       "gain": -26,
-      "why": "room tone under the chart, so the film is never dead"
+      "why": "room tone under the chart",
+      "hold": 100
     },
     {
-      "at": 336,
-      "sound": "whoosh",
-      "gain": -14,
-      "why": "camera pushes in on the chart"
-    },
-    {
-      "at": 414,
-      "sound": "whoosh",
-      "gain": -17,
-      "why": "camera pulls back"
+      "at": 423,
+      "sound": "esc",
+      "gain": -12,
+      "why": "Esc"
     },
     {
       "at": 432,
       "sound": "esc",
-      "repeat": 2,
-      "every": 9,
-      "gain": -9,
-      "why": "Esc twice"
+      "gain": -12,
+      "why": "Esc again"
     },
     {
       "at": 434,
       "sound": "hum",
-      "hold": 286,
       "gain": -28,
-      "why": "room tone under the picker and the menu"
+      "why": "room tone under the picker and the menu",
+      "hold": 286
     },
     {
       "at": 446,
       "sound": "tick",
-      "repeat": 12,
-      "every": 8,
-      "gain": -19,
-      "why": "the list scrolls, the counter climbs"
+      "gain": -20,
+      "why": "one row of the list goes by"
     },
     {
-      "at": 500,
-      "sound": "whoosh",
-      "gain": -14,
-      "why": "camera pushes in on the counter"
+      "at": 454,
+      "sound": "tick",
+      "gain": -20,
+      "why": "one row of the list goes by"
+    },
+    {
+      "at": 462,
+      "sound": "tick",
+      "gain": -20,
+      "why": "one row of the list goes by"
+    },
+    {
+      "at": 470,
+      "sound": "tick",
+      "gain": -20,
+      "why": "one row of the list goes by"
+    },
+    {
+      "at": 478,
+      "sound": "tick",
+      "gain": -20,
+      "why": "one row of the list goes by"
+    },
+    {
+      "at": 486,
+      "sound": "tick",
+      "gain": -20,
+      "why": "one row of the list goes by"
+    },
+    {
+      "at": 494,
+      "sound": "tick",
+      "gain": -20,
+      "why": "one row of the list goes by"
+    },
+    {
+      "at": 502,
+      "sound": "tick",
+      "gain": -20,
+      "why": "one row of the list goes by"
+    },
+    {
+      "at": 510,
+      "sound": "tick",
+      "gain": -20,
+      "why": "one row of the list goes by"
+    },
+    {
+      "at": 518,
+      "sound": "tick",
+      "gain": -20,
+      "why": "one row of the list goes by"
+    },
+    {
+      "at": 526,
+      "sound": "tick",
+      "gain": -20,
+      "why": "one row of the list goes by"
+    },
+    {
+      "at": 534,
+      "sound": "tick",
+      "gain": -20,
+      "why": "one row of the list goes by"
     },
     {
       "at": 546,
       "sound": "land",
-      "gain": -7,
+      "gain": -9,
       "why": "the counter stops on 56"
     },
     {
       "at": 591,
       "sound": "enter",
-      "gain": -6,
+      "gain": -9,
       "why": "Enter opens the menu"
     },
     {
-      "at": 601,
+      "at": 614,
       "sound": "key",
-      "repeat": 4,
-      "every": 13,
-      "gain": -9,
-      "why": "Down four times, one per step"
+      "gain": -12,
+      "why": "Down, step 1"
     },
     {
-      "at": 692,
+      "at": 627,
+      "sound": "key",
+      "gain": -12,
+      "why": "Down, step 2"
+    },
+    {
+      "at": 640,
+      "sound": "key",
+      "gain": -12,
+      "why": "Down, step 3"
+    },
+    {
+      "at": 653,
+      "sound": "key",
+      "gain": -12,
+      "why": "Down, step 4"
+    },
+    {
+      "at": 661,
       "sound": "enter",
-      "gain": -5,
+      "gain": -8,
       "why": "Summarize up to here is chosen"
     },
     {
       "at": 700,
       "sound": "hum",
-      "hold": 96,
-      "gain": -20,
-      "why": "summarizing"
+      "gain": -21,
+      "why": "summarizing",
+      "hold": 96
     },
     {
-      "at": 780,
-      "sound": "whoosh",
-      "gain": -17,
-      "why": "camera pulls back"
+      "at": 798,
+      "sound": "hum",
+      "gain": -28,
+      "why": "room tone while the summary is read",
+      "hold": 164
     },
     {
       "at": 800,
       "sound": "chime",
-      "gain": -9,
+      "gain": -10,
       "why": "the summary lands"
     },
     {
-      "at": 862,
-      "sound": "whoosh",
-      "gain": -16,
-      "why": "camera pushes in on the token count"
+      "at": 871,
+      "sound": "key",
+      "gain": -13,
+      "why": "a character of the next question"
     },
     {
-      "at": 868,
+      "at": 874,
       "sound": "key",
-      "repeat": 8,
-      "every": 10,
-      "gain": -10,
-      "why": "the next question typed"
+      "gain": -13,
+      "why": "a character of the next question"
+    },
+    {
+      "at": 878,
+      "sound": "key",
+      "gain": -13,
+      "why": "a character of the next question"
+    },
+    {
+      "at": 881,
+      "sound": "key",
+      "gain": -13,
+      "why": "a character of the next question"
+    },
+    {
+      "at": 884,
+      "sound": "key",
+      "gain": -13,
+      "why": "a character of the next question"
+    },
+    {
+      "at": 888,
+      "sound": "key",
+      "gain": -13,
+      "why": "a character of the next question"
+    },
+    {
+      "at": 891,
+      "sound": "key",
+      "gain": -13,
+      "why": "a character of the next question"
+    },
+    {
+      "at": 894,
+      "sound": "key",
+      "gain": -13,
+      "why": "a character of the next question"
+    },
+    {
+      "at": 898,
+      "sound": "key",
+      "gain": -13,
+      "why": "a character of the next question"
+    },
+    {
+      "at": 901,
+      "sound": "key",
+      "gain": -13,
+      "why": "a character of the next question"
+    },
+    {
+      "at": 904,
+      "sound": "key",
+      "gain": -13,
+      "why": "a character of the next question"
+    },
+    {
+      "at": 908,
+      "sound": "key",
+      "gain": -13,
+      "why": "a character of the next question"
+    },
+    {
+      "at": 911,
+      "sound": "key",
+      "gain": -13,
+      "why": "a character of the next question"
+    },
+    {
+      "at": 914,
+      "sound": "key",
+      "gain": -13,
+      "why": "a character of the next question"
+    },
+    {
+      "at": 918,
+      "sound": "key",
+      "gain": -13,
+      "why": "a character of the next question"
+    },
+    {
+      "at": 921,
+      "sound": "key",
+      "gain": -13,
+      "why": "a character of the next question"
+    },
+    {
+      "at": 924,
+      "sound": "key",
+      "gain": -13,
+      "why": "a character of the next question"
+    },
+    {
+      "at": 928,
+      "sound": "key",
+      "gain": -13,
+      "why": "a character of the next question"
+    },
+    {
+      "at": 931,
+      "sound": "key",
+      "gain": -13,
+      "why": "a character of the next question"
+    },
+    {
+      "at": 934,
+      "sound": "key",
+      "gain": -13,
+      "why": "a character of the next question"
+    },
+    {
+      "at": 938,
+      "sound": "key",
+      "gain": -13,
+      "why": "a character of the next question"
+    },
+    {
+      "at": 941,
+      "sound": "key",
+      "gain": -13,
+      "why": "a character of the next question"
+    },
+    {
+      "at": 944,
+      "sound": "key",
+      "gain": -13,
+      "why": "a character of the next question"
     },
     {
       "at": 960,
       "sound": "rise",
-      "gain": -12,
+      "gain": -13,
       "why": "the end card"
     },
     {
       "at": 962,
       "sound": "hum",
-      "hold": 116,
       "gain": -27,
-      "why": "room tone under the end card"
+      "why": "room tone under the end card",
+      "hold": 116
     }
-  ],
-  "sounds": {
-    "key": "one mechanical keyboard keystroke, dry, short, no room",
-    "enter": "a deeper mechanical keyboard Enter press, dry",
-    "esc": "a soft key tap, quieter than a keystroke",
-    "hum": "a quiet low electronic hum that can loop, no melody",
-    "print": "a very short soft digital tick, like text arriving",
-    "tick": "a tiny UI tick for a list scrolling one row",
-    "land": "a short soft confirm tick, a little brighter than tick",
-    "whoosh": "a low soft air movement, half a second, no impact",
-    "chime": "one clean short completion chime, warm, not bright",
-    "rise": "a gentle upward swell, one second, ending clean"
-  }
+  ]
 }

@@ -72,24 +72,6 @@ def write(name, samples, peak=0.9):
 
 # ---- 2. the sounds --------------------------------------------------------
 
-def key(seed=7, bright=2600, length=0.035):
-    """One keystroke: a noise burst shaped by a fast decay, plus a low thud."""
-    n = int(length * SR)
-    click = high_pass(low_pass(noise(n, seed), bright), 700)
-    env = envelope(n, 0.0006, 1.0)
-    thud = [v * 0.5 for v in sine(n, 130)]
-    return [(c * 0.85 + t) * e for c, t, e in zip(click, thud, env)]
-
-
-def enter():
-    """The Enter key: lower and a little longer than a letter key."""
-    return key(seed=23, bright=1500, length=0.055)
-
-
-def esc():
-    """A softer tap."""
-    return [v * 0.7 for v in key(seed=41, bright=3400, length=0.028)]
-
 
 def hum(length=1.0):
     """A quiet low hum that loops. Two close tones, so it never sits still."""
@@ -134,21 +116,6 @@ def land():
     return out
 
 
-def whoosh(length=0.55):
-    """Air moving: noise under a band that sweeps up then down."""
-    n = int(length * SR)
-    raw = noise(n, 5)
-    # A sweeping low pass, done by mixing two fixed filters over time.
-    dark, bright = low_pass(raw, 420), low_pass(raw, 2400)
-    out = []
-    for i in range(n):
-        t = i / n
-        mix = math.sin(math.pi * t) ** 1.4          # 0 -> 1 -> 0
-        v = dark[i] * (1 - mix) + bright[i] * mix
-        out.append(v * math.sin(math.pi * t) ** 1.8)
-    return out
-
-
 def chime():
     """The summary lands: a warm three tone chord that rings out."""
     n = int(1.1 * SR)
@@ -174,10 +141,12 @@ def rise(length=1.2):
 
 
 if __name__ == "__main__":
+    # key1, key2, key3, enter and esc are real recordings from Kenney UI
+    # Audio, CC0. See kenney/LICENCE.md. Only these five are built.
     made = {
-        "key": key(), "enter": enter(), "esc": esc(), "hum": hum(1.0),
+        "hum": hum(1.0),
         "print": print_tick(), "tick": tick(), "land": land(),
-        "whoosh": whoosh(), "chime": chime(), "rise": rise(),
+        "chime": chime(), "rise": rise(),
     }
     for name, samples in made.items():
         path, secs = write(name, samples)
