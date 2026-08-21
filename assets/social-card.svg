@@ -1,17 +1,32 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
   <rect width="1280" height="640" fill="#131318"/>
-  <rect x="96.0" y="150" width="22" height="300" rx="11.0" fill="#EAE8E4"/>
-  <rect x="130.5" y="150" width="22" height="300" rx="11.0" fill="#EAE8E4"/>
-  <rect x="171.8" y="150" width="22" height="300" rx="11.0" fill="#EAE8E4"/>
-  <rect x="222.7" y="150" width="22" height="300" rx="11.0" fill="#EAE8E4"/>
-  <rect x="287.3" y="150" width="22" height="300" rx="11.0" fill="#EAE8E4"/>
-  <rect x="371.4" y="150" width="22" height="300" rx="11.0" fill="#B69BE0"/>
-  <rect x="483.1" y="150" width="22" height="300" rx="11.0" fill="#B69BE0"/>
-  <rect x="634.0" y="150" width="22" height="300" rx="11.0" fill="#B69BE0"/>
-  <text x="96" y="516" fill="#EAE8E4" font-family="Helvetica,Arial,sans-serif"
-        font-size="64" font-weight="600" letter-spacing="-1">context-keep</text>
-  <text x="96" y="566" fill="#9A98A6" font-family="Helvetica,Arial,sans-serif"
-        font-size="27">Find where a long Claude Code chat can be summarized,</text>
-  <text x="96" y="602" fill="#9A98A6" font-family="Helvetica,Arial,sans-serif"
-        font-size="27">and what to keep word for word.</text>
+  <rect x="85.2" y="88" width="2.9" height="31" rx="1.5" fill="#EAE8E4"/><rect x="87.8" y="88" width="2.9" height="31" rx="1.5" fill="#EAE8E4"/><rect x="91.0" y="88" width="2.9" height="31" rx="1.5" fill="#EAE8E4"/><rect x="95.0" y="88" width="2.9" height="31" rx="1.5" fill="#EAE8E4"/><rect x="100.0" y="88" width="2.9" height="31" rx="1.5" fill="#EAE8E4"/><rect x="106.6" y="88" width="2.9" height="31" rx="1.5" fill="#B69BE0"/><rect x="115.3" y="88" width="2.9" height="31" rx="1.5" fill="#B69BE0"/><rect x="127.0" y="88" width="2.9" height="31" rx="1.5" fill="#B69BE0"/>
+  <text x="156" y="114" fill="#8E8AA0"
+        font-family="DejaVu Sans Mono,monospace" font-size="21"
+        letter-spacing="2">context-keep</text>
+
+  <text x="80" y="198" fill="#EAE8E4" font-family="DejaVu Sans,Arial,sans-serif"
+        font-size="60" font-weight="bold" letter-spacing="-1.6">Build the whole project</text>
+  <text x="80" y="266" fill="#EAE8E4" font-family="DejaVu Sans,Arial,sans-serif"
+        font-size="60" font-weight="bold" letter-spacing="-1.6">in one session.</text>
+  <text x="80" y="312" fill="#8E8AA0" font-family="DejaVu Sans,Arial,sans-serif"
+        font-size="24">Summarize the half you finished. Keep the half you are working on, exact.</text>
+
+  <rect x="895.0" y="358" width="300.0" height="162"
+        fill="#DCA84A" opacity="0.16"/>
+  <polyline points="85.0,461.5 95.0,463.5 105.0,463.8 115.0,458.5 125.0,458.4 135.0,459.5 145.0,460.7 155.0,460.7 165.0,460.5 175.0,460.7 185.0,461.2 195.0,461.4 205.0,462.1 215.0,463.9 225.0,466.2 235.0,466.1 245.0,467.1 255.0,467.2 265.0,468.0 275.0,467.9 285.0,473.7 295.0,474.3 305.0,475.4 315.0,476.0 325.0,479.7 335.0,479.6 345.0,480.1 355.0,481.3 365.0,482.1 375.0,482.4 385.0,482.3 395.0,482.6 405.0,482.6 415.0,482.8 425.0,484.2 435.0,484.0 445.0,484.7 455.0,485.0 465.0,483.8 475.0,484.0 485.0,483.8 495.0,483.9 505.0,483.7 515.0,490.1 525.0,488.6 535.0,490.6 545.0,494.1 555.0,494.4 565.0,494.3 575.0,498.3 585.0,498.0 595.0,498.4 605.0,498.6 615.0,498.4 625.0,499.3 635.0,499.5 645.0,499.5 655.0,499.6 665.0,500.4 675.0,483.0 685.0,483.2 695.0,484.2 705.0,485.8 715.0,459.9 725.0,462.0 735.0,462.5 745.0,463.8 755.0,463.6 765.0,472.5 775.0,475.1 785.0,473.9 795.0,473.4 805.0,473.5 815.0,476.2 825.0,476.9 835.0,477.2 845.0,476.8 855.0,477.9 865.0,477.9 875.0,477.5 885.0,477.7 895.0,478.2 905.0,402.6 915.0,402.3 925.0,401.2 935.0,399.8 945.0,378.3 955.0,377.8 965.0,379.2 975.0,378.7 985.0,377.8 995.0,378.0 1005.0,379.1 1015.0,378.9 1025.0,378.2 1035.0,377.6 1045.0,383.7 1055.0,381.5 1065.0,381.6 1075.0,381.8 1085.0,383.1 1095.0,383.1 1105.0,382.5 1115.0,381.9 1125.0,382.8 1135.0,382.3 1145.0,381.6 1155.0,380.7 1165.0,380.3 1175.0,380.5 1185.0,379.8 1195.0,379.0" fill="none" stroke="#B69BE0" stroke-width="3"
+            stroke-linejoin="round" stroke-linecap="round"/>
+  <line x1="895.0" y1="358" x2="895.0" y2="520"
+        stroke="#DCA84A" stroke-width="1.6" stroke-dasharray="5 5"/>
+  <circle cx="895.0" cy="478.2" r="7" fill="#DCA84A"
+          stroke="#131318" stroke-width="3"/>
+  <text x="879.0" y="382" fill="#DCA84A" text-anchor="end"
+        font-family="DejaVu Sans Mono,monospace" font-size="19"
+        font-weight="bold">stop here &#183; below~56</text>
+
+  <line x1="85" y1="520" x2="1195" y2="520" stroke="#2A2836" stroke-width="1.5"/>
+  <text x="85" y="548" fill="#8E8AA0"
+        font-family="DejaVu Sans Mono,monospace" font-size="17">summarize this</text>
+  <text x="1195" y="548" fill="#8E8AA0" text-anchor="end"
+        font-family="DejaVu Sans Mono,monospace" font-size="17">keep this exact</text>
 </svg>
