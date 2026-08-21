@@ -1,3 +1,6 @@
+<img src="assets/icon/icon-light.svg#gh-light-mode-only" width="72" align="right" alt="">
+<img src="assets/icon/icon-dark.svg#gh-dark-mode-only" width="72" align="right" alt="">
+
 # Context Keep
 
 Your Claude Code chat is long. You want to shorten it without losing what you
