@@ -614,9 +614,11 @@ function reportLines(key){
   d.zones.slice(lo, hi).forEach(z => {
     const arrow = z.best ? '<span class="a">   &rarr; </span>' : '     ';
     const cls = z.best ? 'a' : 'd';
-    L.push(`${arrow}<span class="${cls}">below~${String(z.below).padEnd(5)}</span>`
+    // quote(text, 38) in the terminal: 37 characters then an ellipsis.
+    const q = z.quote.length > 37 ? z.quote.slice(0, 37) + '\u2026' : z.quote;
+    L.push(`${arrow} <span class="${cls}">below~${String(z.below).padEnd(5)}</span>`
       + ` <span class="z">${bar(z.frees)}</span> ${String(Math.round(z.frees*100)).padStart(3)}%`
-      + `  <span class="z">${DOT[z.grade]}</span>   <span class="d">"${esc(z.quote)}&#8230;"</span>`);
+      + `  <span class="z">${DOT[z.grade]}</span>   <span class="d">"${esc(q)}"</span>`);
   });
   if (hi < d.zones.length) L.push(`        <span class="d">&darr; ${d.zones.length - hi} newer</span>`);
   L.push('');
