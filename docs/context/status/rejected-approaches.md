@@ -83,7 +83,7 @@ Word dependency, in `foundation/self-containment.md`. It asks a different questi
 "how different is the subject here" but "does the kept part still need the dropped part".
 
 `experiments/sensitivity.py` sweeps `PLATEAU_TOL`, `MIN_GAIN` and `MIN_TAIL` over 36
-combinations. The labeled stop stayed inside zone 1 in all 36.
+combinations. The labeled stop stayed inside the top zone in all 36.
 
 ## Key files
 

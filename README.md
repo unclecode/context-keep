@@ -85,39 +85,43 @@ anywhere inside it.
 ## Three shapes, three answers
 
 A rise of 0.03 means nothing on its own. The same rise is a clear break in a
-quiet curve and ordinary movement in a restless one. So every zone is measured
-against the wiggle of its own curve, and the command says which of three
-shapes you have.
+quiet curve and ordinary movement in a restless one. So every rise is measured
+against the wiggle of its own curve. The `break` column carries the answer:
+`●●●` a clear topic change, `●●○` a sub-topic inside the same work, `●○○`
+barely above the noise.
 
 **1. A real break, with a fall after it.** The curve steps up, holds flat, then
-falls away. Stop anywhere in the flat run.
+falls away.
 
 ```
-zone 1  keeps 0.66  a clear break, 29x the noise
-  stop here     below~50  "I liked toolshrink, took a bit of time, yesterday…"
-  or as late as below~39  "we go this 150$ ... Lets make a new dir"
+      below~82    ▓▓▓▓▌      49%  ●●●   "let me knwo whaen post is published s…"
+   →  below~51    ▓▓▓▓▓▓▌    71%  ●●●   "yes agree I continue as I feel dotn w…"
 ```
 
 **2. A real break, no fall.** The curve steps up and stays up. The break
-happened, and nothing since has needed the past.
+happened, and nothing since has needed the past, so the newest row is the pick.
 
 ```
-zone 1  keeps 0.70  a clear break, 31x the noise
-  stop here     below~48  "Make soem radar search today see what we ahve"
-  anything newer is as safe, and saves more
+      below~17    ▓▓▓▓▓▓▓▌   81%  ●●○   "$$ What u wanna do in coverage?"
+   →  below~10    ▓▓▓▓▓▓▓█   88%  ●●●   "This is good. Let's create a very det…"
 ```
 
-**3. One long topic.** No step is clear, but the sub-topics are still there and
-still real. The command shows five of them, graded, so you can choose.
+**3. One long topic.** No step is clear, but the sub-topics are real. Every one
+is graded, so you choose along the ladder.
 
 ```
-zone 1  keeps 0.51  a sub-topic inside the same work, 8x the noise
-zone 2  keeps 0.50  barely above the noise, 4x the noise
+      below~64    ▓▓▓▓▓▌     59%  ●●○   "ok Case 3 is Cookie + Http, means on …"
+   →  below~53    ▓▓▓▓▓█     66%  ●●○   "good however look still artifact is w…"
+      below~37    ▓▓▓▓▓▓█    76%  ●○○   "Yes add it, dont commit do I reveiw"
 ```
 
-Measured: a real break scores 128 times the wiggle of its curve, while the
-sub-topics inside one long piece of work score 6 to 10. Both are real. Only the
-first is a break.
+Measured across 19 sessions: a real break scores 128 to 191 times the wiggle of
+its own curve, while the sub-topics inside one long piece of work score 6 to
+14. Both are real. Only the first is a break.
+
+The arrow prefers a real break over a safe-looking number. Ranking on
+self-containment alone put it on a `weak` rise in 13 of the 19 sessions;
+ranking the grade first leaves 1.
 
 When not even a sub-topic exists, the command shows the trade instead: three
 stops, each with what it keeps and what it saves. A long chat still has to be

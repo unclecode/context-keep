@@ -49,7 +49,7 @@ serve the benchmark, not the user.
 1. Load the timeline, drop compact summaries, and stop early when the window holds fewer
    than 40 messages, printing "Too short to summarize yet."
 2. Build the term index, the usable stops and the curve.
-3. **Always draw the chart**, painting zone 1's columns when a zone exists.
+3. **Always draw the chart**, painting the recommended zone's columns.
 4. With zones: print each one with its `safest` and `most_compression` ends. When the zone
    reaches the last usable stop, print "anything newer is as safe, and saves more" instead
    of a second position, because naming the last row is not useful.
@@ -80,7 +80,8 @@ showed nothing.
   the line stays connected.
 - One ANSI code is emitted per run of same-coloured cells, not per cell.
 - When `marks` is not empty, a marker row is printed under the axis with `▔` under the zone
-  and the label `zone 1`. That row is what makes the zone readable with colour off.
+  and the label `mark_label`, which the report sets to ` the pick `. That row is
+  what makes the zone readable with colour off.
 
 ## The HTML page
 

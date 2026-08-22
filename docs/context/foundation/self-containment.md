@@ -56,7 +56,8 @@ The value falls as the stop moves later, because a later tail borrows more. Comp
 rises as the stop moves later. These two pull against each other, which is what makes an
 optimum exist. No weight balances them; the zone rule below does.
 
-`find_zones(values, top_k=3)` finds where new work begins:
+`find_zones(values, top_k=None)` finds every place new work begins. Pass a
+number only to cut the list short:
 
 1. For each row `j`, look back over `STEP_SPAN` rows, take the minimum, and call its
    position the **foot**. The rise is `values[j] - values[foot]`.
@@ -69,7 +70,8 @@ The zone starts at the **foot**, not at the top of the rise. New work needs a fe
 to bring its words in, so the curve lags the moment the work starts. Anchoring at the top
 put every zone start 3 to 5 messages late.
 
-`safe_zones(timeline, window, top_k=3)` wraps that and returns dicts with `safest` (the
+`safe_zones(timeline, window)` wraps that and returns every zone, oldest stop
+first, dropping any that frees less than `MIN_FREES`. Each dict carries `safest` (the
 foot triple), `most_compression` (the end triple), `self` (the value at the foot) and
 `step`. The list is sorted by `round(self, 2)` descending, then by later row, so the
 safest zone comes first and a tie goes to the zone that saves more.
@@ -144,7 +146,7 @@ rule was inverted to key on rises. See `SKIP_PREFIXES` in `extract.py`.
 | `MIN_STOP_CHARS` | 30 | a shorter message never starts a piece of work |
 
 `experiments/sensitivity.py` sweeps the first three over 36 combinations. The labeled stop
-stayed inside zone 1 in all 36.
+stayed inside the top zone in all 36.
 
 ## Key files
 

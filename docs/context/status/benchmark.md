@@ -31,7 +31,7 @@ session gave row 137, then row 51. The work is split.
 that a piece of work can run for many messages and change stage several times, and that a
 stage change is not a new piece. Output is `{"units": [{"start": n, "name": "..."}]}`.
 This call is reliable. On the labeled session it produced, unprompted, a unit
-`[114] Replicate LLM reasoning benchmark on Claude`, and zone 1 starts at row 114.
+`[114] Replicate LLM reasoning benchmark on Claude`, and the top zone starts at row 114.
 
 **Call 2, `CHOOSE_SYSTEM`.** Given the unit list and the newest 18 messages, choose the
 start of the piece the newest messages belong to, then move earlier if they point back to
