@@ -34,7 +34,8 @@ class Palette:
         self.off = c("0") if on else ""
 
 
-def curve_chart(values, marks=(), rows=7, width=None, palette=None):
+def curve_chart(values, marks=(), rows=7, width=None, palette=None,
+                mark_label=" the pick "):
     """One line chart. values is oldest first. marks are column indexes to
     paint in the zone colour. Returns a list of lines.
 
@@ -102,7 +103,7 @@ def curve_chart(values, marks=(), rows=7, width=None, palette=None):
         band = ["·"] * width
         for i in range(lo_col, hi_col + 1):
             band[i] = "▔"
-        label = " zone 1 "
+        label = mark_label
         at = min(width - len(label), max(0, (lo_col + hi_col) // 2 - len(label) // 2))
         band[at:at + len(label)] = list(label)
         lines.append(f"  {palette.dim}      {palette.off}{palette.zone}" + "".join(band) + palette.off)

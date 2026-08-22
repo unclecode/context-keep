@@ -124,3 +124,21 @@ built, so the page can carry the note and the side trips.
 
 Both the page and the terminal now subtract `PICKER_OFFSET`. The page used to
 subtract 3, so it named a message one place away from the terminal.
+
+## The ladder
+
+The report prints one row per stop, oldest at the top. Reading down frees more
+room. `→` marks the one to take.
+
+    scroll to    frees             break  the message there
+    below~82    ▓▓▓▓▌      49%  ●●●   "let me knwo whaen post is published s…"
+ →  below~51    ▓▓▓▓▓▓▌    71%  ●●●   "yes agree I continue as I feel dotn w…"
+
+`frees` is the share of the chat a stop there hands to the summary. `break` is
+the grade: three dots is `clear`, two is `sub-topic`, one is `weak`.
+
+Five rows at a time. `↑ n older` and `↓ n newer` say when more exist. The
+window slides when the pick sits near an end, so the height stays the same.
+
+`safe_zones` returns every zone, oldest first, and drops any that frees less
+than `MIN_FREES`. `best_zone` chooses the row that gets the arrow.

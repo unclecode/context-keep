@@ -151,3 +151,19 @@ stayed inside zone 1 in all 36.
 | File | Role |
 |---|---|
 | `context_keep/zones.py` | the whole measure: terms, first_seen, curve, zones |
+
+## Choosing the one to recommend
+
+Two numbers could decide it, and they disagree. `self` says how self-contained
+the kept part is. The grade says how real the boundary is.
+
+Measured over 19 sessions, ranking on `self` alone put the arrow on a `weak`
+rise in **13 of them**, and those stops freed **46%** of the chat at the median.
+Ranking the grade first left **1** weak pick and freed **66%**.
+
+So `best_zone` orders on grade, then `self`, then the later stop. The cost is
+real: on a few sessions `self` drops by up to 0.30. In every one of those the
+freed room rose by 30 points or more, which is the reason the command is run.
+
+`MIN_FREES` drops any stop that frees less than 10% of the chat before the
+choice is made.

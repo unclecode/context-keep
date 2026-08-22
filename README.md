@@ -19,29 +19,37 @@ are working on. Claude code and other coding agents provides two forms of summar
 Then type `/keep` in any session.
 
 ```
-  keep  session f4baca39 · 167 messages · 94 places to stop
+
+  keep  session edd44f35 · 188 messages · 112 places to stop
 
   self-containment
-  0.69 ┤                                             ▁▆▆▆▆▆▆▅▅▅▅▅▅▅▆▆▆▇█
-  0.66 ┤▅▁                                         ▁▂│
-  0.64 ┤  ▇▅▄▃▂▂▁▁▁▁▁▁▁▁▁▃▁                        │
-  0.61 ┤                   ▆▄▂▁▁▁▁ ▂▁▁             │
-  0.56 ┤                              ▇▅▄▁         │
-  0.54 ┤                                  ▄▄▃▁▁▁▁▁ │
-       └────────────────────────────────────────────────────────────────
-        ·············································▔▔▔ zone 1 ▔▔▔▔▔▔▔
+  0.66 ┤                                         ▃▇█▇▇▆▆▅▆▆▆▇▇
+  0.63 ┤                                        ▅│            
+  0.60 ┤                                        │             
+  0.57 ┤                                       ▃│             
+  0.54 ┤▁▁▂▁▁▁▁                        ▁▁      │              
+  0.51 ┤       ▇▆▅▃▂▁▁                ▄│ ▃▄▂▂▁▂│              
+  0.48 ┤              ▇▇▇▆▆▇▆▄▂▁▁▁▁ ▃▇│                       
+       └──────────────────────────────────────────────────────
+        ········································▔ the pick ▔▔▔
         older → newer
 
-  zone 1  safe 0.70  new work starts here (+0.039)
-    stop here     below~48  "Make soem radar search today see what we ahve"
-    or as late as below~39  "we go this 150$ ... Lets make a new dir"
+      scroll to    frees             break  the message there
+      below~142   ▓▌         16%  ●●○   "yeah move, and I am thinkign what can…"
+      below~82    ▓▓▓▓▌      49%  ●●●   "let me knwo whaen post is published s…"
+      below~76    ▓▓▓▓█      54%  ●●●   "ok, stay positive, lets me see what I…"
+      below~56    ▓▓▓▓▓█     65%  ●●●   "ok good we got or today content yeayy"
+   →  below~51    ▓▓▓▓▓▓▌    71%  ●●●   "yes agree I continue as I feel dotn w…"
 
-  How to use it
-    1. Press Esc twice.
-    2. Go up until the list shows "↓ 48 more below".
-    3. Choose "Summarize up to here".
-    4. Paste this into the context box: ...
+  Esc Esc → scroll to “↓ 51 more below” → “Summarize up to here”
+  the note and every stop: file:///home/claude/.claude/context-keep/edd44f35.html
 ```
+
+Every row is a place you could stop. The oldest is at the top, so reading down
+frees more room. `frees` is the share of the chat that becomes a summary.
+`break` grades how real the boundary is: `●●●` a clear topic change, `●●○` a
+sub-topic inside the same work, `●○○` barely above the noise. The arrow marks
+the one to take, and it prefers a real break over a safe-looking number.
 
 No network. No API key. No dependencies. It reads your session file and prints.
 

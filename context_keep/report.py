@@ -12,6 +12,7 @@ import urllib.request
 from .extract import load_timeline
 from .rules import score_timeline
 from .zones import (build, self_containment, usable_stops, safe_zones,
+                    best_zone,
                     supplying_blocks)
 from .render import Palette, curve_chart
 
@@ -44,6 +45,31 @@ def session_path(session_id=None):
     return hits[0] if hits else None
 
 
+ROWS = 5              # how many stops the ladder shows
+DOTS = {"clear": "●●●", "sub-topic": "●●○", "weak": "●○○"}
+BAR_CELLS = 9
+
+
+def bar(share, cells=BAR_CELLS):
+    """A bar for a share between 0 and 1. Eighths give it a soft end."""
+    full = int(share * cells)
+    part = "" if full >= cells else "▎▌▊█"[min(3, int((share * cells - full) * 4))]
+    return ("▓" * full + part).ljust(cells)
+
+
+def window_around(zones, best, rows=ROWS):
+    """The slice of the ladder to print.
+
+    Two older above the pick and two newer below it. When the pick sits at
+    either end there is nothing to show on that side, so the window slides
+    and the list keeps its height. Returns (slice, hidden_older, hidden_newer).
+    """
+    i = zones.index(best)
+    lo = max(0, min(i - (rows // 2), len(zones) - rows))
+    hi = min(len(zones), lo + rows)
+    return zones[lo:hi], lo, len(zones) - hi
+
+
 def html_path(session):
     """Where the page is written. One file per session, overwritten each run."""
     folder = os.path.join(os.path.expanduser("~"), ".claude", "context-keep")
@@ -67,9 +93,11 @@ def write_html(path, session, stops, values, zones, dest,
     from .html import page
     points = [(be - PICKER_OFFSET, v, m.timestamp[5:16], m.text)
               for (k, be, m), v in zip(stops, values)]
+    pick = best_zone(zones)
     zs = [{"below": z["safest"][1] - PICKER_OFFSET,
            "end_below": z["most_compression"][1] - PICKER_OFFSET,
-           "self": z["self"], "strength": z["strength"], "grade": z["grade"],
+           "self": z["self"], "frees": z["frees"], "strength": z["strength"],
+           "grade": z["grade"], "best": z is pick,
            "quote": quote(z["safest"][2].text, 70)} for z in zones]
     with open(dest, "w", encoding="utf-8") as fh:
         fh.write(page(session, points, zs, blocks=blocks, note=note,
@@ -107,26 +135,23 @@ def report(path, top=3, palette=None, out=sys.stdout, html=False, branch=None):
     per_msg, first_seen = build([tl.messages[c.index - 1].text for c in window])
     stops = usable_stops(tl, window)
     values = [self_containment(per_msg, first_seen, k) for k, _, _ in stops]
-    zones = safe_zones(tl, window, top_k=top)
-    if zones and not any(z["grade"] == "clear" for z in zones):
-        zones = safe_zones(tl, window, top_k=max(top, 5))
+    zones = safe_zones(tl, window)
+    best = best_zone(zones)
 
     w()
     w(f"  {palette.head}keep{palette.off}  {palette.dim}session {session} · "
       f"{len(window)} messages · {len(stops)} places to stop{palette.off}")
     w()
 
-
-    # The chart always draws. With a zone, paint the zone. Without one,
-    # paint nothing and let the trade table below carry the answer.
+    # The chart always draws. With a zone, paint the one we recommend.
     row_of = {k: i for i, (k, _, _) in enumerate(stops)}
     marks = set()
-    if zones:
-        z1 = zones[0]
-        marks = set(range(row_of[z1["safest"][0]],
-                          row_of[z1["most_compression"][0]] + 1))
+    if best:
+        marks = set(range(row_of[best["safest"][0]],
+                          row_of[best["most_compression"][0]] + 1))
     w(f"  {palette.dim}self-containment{palette.off}")
-    for line in curve_chart(values, marks=marks, palette=palette):
+    for line in curve_chart(values, marks=marks, palette=palette,
+                            mark_label=" the pick "):
         w(line)
     w(f"  {palette.dim}      older → newer{palette.off}")
     w()
@@ -144,59 +169,58 @@ def report(path, top=3, palette=None, out=sys.stdout, html=False, branch=None):
                 return t
         return texts[0] if texts else ""
 
-    if not zones:
+    if not best:
         return _no_break(stops, values, palette, w)
 
-    last_cut = stops[-1][0]
-    for i, z in enumerate(zones, 1):
-        ks, bes, ms = z["safest"]
-        ke, bee, me = z["most_compression"]
-        tag = palette.zone if i == 1 else palette.dim
-        note = {"clear": "a clear break",
-                "sub-topic": "a sub-topic inside the same work",
-                "weak": "barely above the noise"}[z["grade"]]
-        w(f"  {tag}zone {i}{palette.off}  {palette.dim}keeps {z['self']:.2f}  "
-          f"{note}, {z['strength']:.0f}x the noise{palette.off}")
-        w(f"    stop here     {palette.head}below~{bes - PICKER_OFFSET}{palette.off}  "
-          f"{palette.quote}\"{quote(ms.text)}\"{palette.off}")
-        if ke == last_cut:
-            w(f"    {palette.dim}anything newer is as safe, and saves more{palette.off}")
-        elif ke != ks:
-            w(f"    or as late as {palette.head}below~{bee - PICKER_OFFSET}{palette.off}  "
-              f"{palette.quote}\"{quote(me.text)}\"{palette.off}")
-        w()
-
-    best = zones[0]["safest"]
-    islands = [(lo, hi, share) for lo, hi, share
-               in supplying_blocks(per_msg, first_seen, best[0])
-               if share < ISLAND_SHARE]
-
-    w(f"  {palette.head}How to use it{palette.off}")
-    w(f"    1. Press Esc twice.")
-    w(f"    2. Go up until the list shows “↓ {best[1] - PICKER_OFFSET} more below”.")
-    w(f"       Check the message reads: \"{quote(best[2].text, 44)}\"")
-    w(f"    3. Choose “Summarize up to here”.")
-    w(f"    4. Paste this into the context box:")
-    note = FOCUS_TEXT
-    if islands:
-        parts = []
-        for lo, hi, share in islands:
-            parts.append(f'the part starting "{quote(block_anchor(lo, hi), 44)}"')
-        note += (" Drop these side trips whole, the later work never uses them: "
-                 + "; ".join(parts) + ".")
-    for chunk in _wrap(note, 66):
-        w(f"       {palette.quote}{chunk}{palette.off}")
+    # ---- the ladder. Oldest at the top, so reading down frees more room.
+    shown, older, newer = window_around(zones, best)
+    if older:
+        w(f"        {palette.dim}↑ {older} older{palette.off}")
+    w(f"      {palette.dim}scroll to    frees             break  "
+      f"the message there{palette.off}")
+    for z in shown:
+        pick = z is best
+        arrow = f"{palette.head}   → {palette.off}" if pick else "     "
+        tag = palette.head if pick else palette.dim
+        w(f"{arrow} {tag}below~{z['safest'][1] - PICKER_OFFSET:<5}{palette.off} "
+          f"{palette.zone}{bar(z['frees'])}{palette.off} {z['frees']:4.0%}  "
+          f"{palette.zone}{DOTS[z['grade']]}{palette.off}   "
+          f"{palette.quote}\"{quote(z['safest'][2].text, 38)}\"{palette.off}")
+    if newer:
+        w(f"        {palette.dim}↓ {newer} newer{palette.off}")
     w()
 
-    # The terminal chart is small and cannot be explored. Write the same
-    # answer as a page every run, and print a link the terminal can open.
+    anchor = best["safest"]
+    islands = [(lo, hi, share) for lo, hi, share
+               in supplying_blocks(per_msg, first_seen, anchor[0])
+               if share < ISLAND_SHARE]
+
+    note = FOCUS_TEXT
+    if islands:
+        parts = [f'the part starting "{quote(block_anchor(lo, hi), 44)}"'
+                 for lo, hi, share in islands]
+        note += (" Drop these side trips whole, the later work never uses them: "
+                 + "; ".join(parts) + ".")
+
+    w(f"  {palette.dim}Esc Esc → scroll to{palette.off} "
+      f"{palette.head}“↓ {anchor[1] - PICKER_OFFSET} more below”{palette.off} "
+      f"{palette.dim}→ “Summarize up to here”{palette.off}")
+
+    # The note is long and you paste it, never read it. The page holds it
+    # with a copy button, so the terminal only carries the link.
     if html:
-        blocks = supplying_blocks(per_msg, first_seen, best[0])
+        blocks = supplying_blocks(per_msg, first_seen, anchor[0])
         dest = html_path(session)
         write_html(path, session, stops, values, zones, dest,
                    blocks=blocks, note=note, messages=len(window))
-        w(f"  {palette.dim}explore it:{palette.off} {palette.head}{link(dest)}{palette.off}")
+        w(f"  {palette.dim}the note and every stop:{palette.off} "
+          f"{palette.head}{link(dest)}{palette.off}")
+    else:
         w()
+        w(f"  {palette.dim}Paste this into the context box:{palette.off}")
+        for chunk in _wrap(note, 66):
+            w(f"    {palette.quote}{chunk}{palette.off}")
+    w()
     return 0
 
 

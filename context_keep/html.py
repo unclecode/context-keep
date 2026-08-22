@@ -61,10 +61,19 @@ h2{font-size:15px;margin:0 0 14px;font-weight:600;letter-spacing:-.01em}
 .zone:hover,.zone:focus-visible{border-color:var(--accent);border-left-color:var(--accent);outline:none}
 .zone[aria-pressed="true"]{border-color:var(--accent);border-left-color:var(--accent);
   background:var(--accent-soft)}
-.zone .lab{font:500 12px FONTS_MONO;color:var(--accent);white-space:nowrap}
-.zone .grade{font:11px FONTS_MONO;letter-spacing:.08em;text-transform:uppercase;
-  color:var(--zone);white-space:nowrap}
-.zone .q{color:var(--muted);font-size:14.5px;flex:1;min-width:220px}
+.zone{align-items:center}
+.zone.best{border-left-color:var(--accent)}
+.zone .pick{font:500 13px FONTS_MONO;color:var(--accent);width:15px;flex:none}
+.zone .lab{font:500 12.5px FONTS_MONO;color:var(--ink);white-space:nowrap;
+  width:92px;flex:none;font-variant-numeric:tabular-nums}
+.zone .barcell{width:96px;height:11px;background:var(--sunk);border-radius:2px;
+  flex:none;overflow:hidden}
+.zone .barcell .fill{display:block;height:11px;background:var(--zone)}
+.zone .pct{font:12px FONTS_MONO;color:var(--muted);width:42px;flex:none;
+  text-align:right;font-variant-numeric:tabular-nums}
+.zone .dots{font-size:12px;color:var(--zone);letter-spacing:1px;flex:none;
+  cursor:help}
+.zone .q{color:var(--muted);font-size:14px;flex:1;min-width:200px}
 
 /* result cells */
 .cells{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
@@ -125,10 +134,18 @@ def page(session, points, zones, blocks=(), note="", messages=0):
         "zones": zones,
     }
 
+    dots = {"clear": "\u25cf\u25cf\u25cf", "sub-topic": "\u25cf\u25cf\u25cb",
+            "weak": "\u25cf\u25cb\u25cb"}
     zone_html = "".join(
-        f'<button class="zone" type="button" data-i="{i}" aria-pressed="false">'
-        f'<span class="lab">zone {i + 1} &middot; below~{z["below"]}</span>'
-        f'<span class="grade">{_esc(z["grade"])} &middot; {z["strength"]:.0f}x the noise</span>'
+        f'<button class="zone{" best" if z.get("best") else ""}" type="button" '
+        f'data-i="{i}" aria-pressed="false">'
+        f'<span class="pick">{"&rarr;" if z.get("best") else ""}</span>'
+        f'<span class="lab">below~{z["below"]}</span>'
+        f'<span class="barcell"><span class="fill" '
+        f'style="width:{z.get("frees", 0) * 100:.0f}%"></span></span>'
+        f'<span class="pct">{z.get("frees", 0) * 100:.0f}%</span>'
+        f'<span class="dots" title="{_esc(z["grade"])}, '
+        f'{z["strength"]:.0f}x the noise">{dots[z["grade"]]}</span>'
         f'<span class="q">&ldquo;{_esc(z["quote"])}&rdquo;</span></button>'
         for i, z in enumerate(zones))
 
@@ -174,7 +191,7 @@ def page(session, points, zones, blocks=(), note="", messages=0):
 </div>
 
 <div class="card">
-  <h2>Safe zones &mdash; choose one to see the trade</h2>
+  <h2>Every stop worth taking &mdash; oldest first</h2>\n  <p style="color:var(--muted);font-size:14.5px;margin:-6px 0 14px">Reading down frees more room. The arrow marks the one to take: a real break beats a safe-looking number. Three dots is a clear break, two a sub-topic, one barely above the noise.</p>
   <div class="zones">{zone_html}</div>
   <div class="cells" id="cells" style="margin-top:16px"></div>
 </div>
@@ -225,7 +242,7 @@ function draw(sel){{
     if (on) {{
       g += `<line x1="${{X(a).toFixed(1)}}" y1="${{T}}" x2="${{X(a).toFixed(1)}}" y2="${{H-B}}" stroke="var(--accent)" stroke-width="1.5"/>`;
       g += `<circle cx="${{X(a).toFixed(1)}}" cy="${{Y(v[a]).toFixed(1)}}" r="5" fill="var(--accent)" stroke="var(--term)" stroke-width="2"/>`;
-      g += `<text x="${{(X(a)+7).toFixed(1)}}" y="${{T+13}}" font-family="{FONTS_MONO}" font-size="10.5" font-weight="500" fill="var(--accent)">zone ${{i+1}} &#183; below~${{z.below}}</text>`;
+      g += `<text x="${{(X(a)+7).toFixed(1)}}" y="${{T+13}}" font-family="{FONTS_MONO}" font-size="10.5" font-weight="500" fill="var(--accent)">below~${{z.below}} &#183; frees ${{Math.round((z.frees||0)*100)}}%</text>`;
     }}
   }});
   const pts = v.map((t, i) => `${{X(i).toFixed(1)}},${{Y(t).toFixed(1)}}`);
@@ -275,10 +292,12 @@ function cells(i){{
       <div class="s">${{esc(z.quote).slice(0, 40)}}&#8230;</div></div>
     <div class="cell"><div class="k">Self-containment</div><div class="v">${{z.self.toFixed(2)}}</div>
       <div class="s">of the kept part is its own</div></div>
-    <div class="cell"><div class="k">Strength</div><div class="v">${{z.strength.toFixed(0)}}x</div>
-      <div class="s">the wiggle of this curve</div></div>
-    <div class="cell"><div class="k">Grade</div><div class="v g" style="font-size:19px">${{esc(z.grade)}}</div>
-      <div class="s">${{z.grade === "clear" ? "a real break" : "inside the same work"}}</div></div>`;
+    <div class="cell"><div class="k">Frees</div>
+      <div class="v">${{Math.round((z.frees || 0) * 100)}}%</div>
+      <div class="s">of the chat becomes a summary</div></div>
+    <div class="cell"><div class="k">Break</div>
+      <div class="v g" style="font-size:19px">${{esc(z.grade)}}</div>
+      <div class="s">${{z.strength.toFixed(0)}}x the wiggle of this curve</div></div>`;
 }}
 
 document.querySelectorAll(".zone").forEach(btn => {{
