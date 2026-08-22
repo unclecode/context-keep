@@ -628,6 +628,20 @@ function reportLines(key){
   return L;
 }
 
+/** Keep the newest part of the toy on screen while it grows. */
+const SMOOTH = matchMedia('(prefers-reduced-motion: reduce)').matches
+  ? 'auto' : 'smooth';
+function keepInView(el, margin){
+  if (!el) return;
+  const r = el.getBoundingClientRect();
+  const pad = margin == null ? 26 : margin;
+  if (r.bottom > innerHeight - pad){
+    scrollBy({ top: r.bottom - innerHeight + pad, behavior: SMOOTH });
+  } else if (r.top < pad){
+    scrollBy({ top: r.top - pad, behavior: SMOOTH });
+  }
+}
+
 let timer = null;
 function run(){
   const key = document.getElementById('pick').value;
