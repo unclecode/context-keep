@@ -569,7 +569,7 @@ function drawPlot(key, hi, chosen){
     g += `<rect x="${X(a).toFixed(1)}" y="${T}" width="${Math.max(3, X(b)-X(a)).toFixed(1)}" height="${H-T-B}" fill="var(--zone)" opacity="${on ? .26 : .09}"/>`;
     if (on){
       g += `<line x1="${X(a).toFixed(1)}" y1="${T}" x2="${X(a).toFixed(1)}" y2="${H-B}" stroke="var(--zone)" stroke-width="1.5"/>`;
-      g += `<text x="${(X(a)+7).toFixed(1)}" y="${T+13}" font-family="var(--mono)" font-size="10.5" font-weight="500" fill="var(--zone)">zone ${i+1} &#183; ${z.x}&times; the noise</text>`;
+      g += `<text x="${(X(a)+7).toFixed(1)}" y="${T+13}" font-family="var(--mono)" font-size="10.5" font-weight="500" fill="var(--zone)">below~${z.below} &#183; frees ${Math.round(z.frees*100)}% &#183; ${z.x}&times; the noise</text>`;
     }
   });
   const pts = v.map((t, i) => `${X(i).toFixed(1)},${Y(t).toFixed(1)}`);
